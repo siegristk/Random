@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="utf-8" />
+<title>Object Library</title>
+<meta name="Author" content="Kyle Siegrist" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="Keywords" content="probability, statistics, objects, Java, programming" />
+<link rel="icon" href="icons/Icon.png" type="image/png" />
+<link rel="stylesheet" href="ScreenStyles.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="PrintStyles.css" type="text/css" media="print" />
+<link rel="contents" href="index.html" />
+<link rel="copyright" href="Copyright.html" />
+<link rel="help" href="Introduction.html" />
+<script>var baseURL = "./"; window.name = "main";</script>
+<script src="scripts.js"></script>
+</head>
+
+<body>
+
+<header>
+
+<ol class="map">
+	<li class="parent"><a href="index.html" class="main">Random</a></li>
+	<li class="child">Object Library</li>
+</ol>
+
+
+<h2 class="main">Object Library</h2>
+</header>
+
+<p>The programmatic <q>objects</q> in this project are designed, to the extent possible, so that they can be re-used in other projects and modified if necessary. This object library contains descriptions of these objects and instructions for downloading and using them.</p>
+
+<ol>
+	<li><a href="#apps" class="main">Overview of the Apps</a></li>
+	<li><a href="#special" class="main">HTML and Special JavaScript Files</a></li>
+	<li><a href="#other" class="main">Images and Style Sheets</a></li>
+</ol>
+
+<h3 id="apps">1. Overview of the Apps</h3>
+
+<p>The apps in this project are small, self-contained programs that run in web pages. They are intended to illustrate concepts and techniques from probability and statistics in an interactive, dynamic way. </p>
+
+<p>The apps in the library contain no explicit mathematical exposition and thus can be used by students at various levels (with appropriate guidance from the instructor). The apps are intended to be small <q>micro-worlds</q> where students can run virtual versions of random experiments and play virtual versions of statistical games. Read the <a href="JavaScript:openApp('Instructions')" class="app" title="Open app instructions">app instructions</a> for more information about the apps, including the graphical user interface.</p>
+
+<p>The apps in this project are constructed using HTML5 technologies, specifically JavaScript, the HTML5 Canvas element and enhanced form elements. To download an app for use in your own website, you need the following:</p>
+
+<ul>
+	<li>The core JavaScript files</li>
+	<li>The HTML and special JavaScript files for the app</li>
+	<li>Images used in the app</li>
+	<li>The CSS style sheet</li>
+</ul>
+
+<h4 id="core">Core JavaScript Files</h4>
+
+<p>The JavaScript code is constructed in an object-oriented way, so that the <q>objects</q> can be modified and reused. The core JavaScript files are</p>
+
+<ul class="object">
+	<li><a href="apps/devices.js" class="download" download="devices.js">devices.js</a>. This file has JavaScript implementations of gadgets with visual interfaces, such as dice, coins, and cutomized graphs.</li>
+	<li><a href="apps/distributions.js" class="download" download="distributions.js">distributions.js</a>. This file has JavaScript implementations of probability distributions, special functions, and data structures.</li>
+</ul>
+
+<h3 id="special">2. HTML and Special JavaScript Files</h3>
+
+<p>The following is a list of all of the apps in this project. Click on the links to download the HTML files and the JavaScript files.</p>
+
+<h4>Simple Probability and Combinatorics</h4>
+
+<ul class="object">
+	<li><a href="apps/VennGame.html" class="download" download="VennGame.html">Venn Diagram App</a> | <a href="apps/VennGame.js" class="download" download="VennGame.js">VennGame.js</a></li>
+	<li><a href="apps/ProbabilityExperiment.html" class="download" download="ProbabilityExperiment.html">Probability Experiment</a> | <a href="apps/ProbabilityExperiment.js" class="download" download="ProbabilityExperiment.js">ProbabilityExperiment.js</a></li>
+	<li><a href="apps/ConditionalProbabilityExperiment.html" class="download" download="ConditionalProbabilityExperiment.html">Conditional Probability Experiment</a> | <a href="apps/ConditionalProbabilityExperiment.js" class="download" download="ConditionalProbabilityExperiment.js">ConditionalProbabilityExperiment.js</a></li>
+	<li><a href="apps/GaltonBoardGame.html" class="download" download="GaltonBoardGame.html">Galton Board</a> | <a href="apps/GaltonBoardGame.js" class="download" download="GaltonBoardGame.js">GaltonBoardGame.js</a></li>
+</ul>
+
+<h4>Geometric Models</h4>
+
+<ul class="object">
+	<li><a href="apps/BuffonCoinExperiment.html" class="download" download="BuffonCoinExperiment.html">Buffon's Coin Experiment</a> | <a href="apps/BuffonCoinExperiment.js" class="download" download="BuffonCoinExperiment.js">BuffonCoinExperiment.js</a></li>
+	<li><a href="apps/BuffonNeedleExperiment.html" class="download" download="BuffonNeedleExperiment.html">Buffon's Needle Experiment</a> | <a href="apps/BuffonNeedleExperiment.js" class="download" download="BuffonNeedleExperiment.js">BuffonNeedleExperiment.js</a></li>
+	<li><a href="apps/BertrandExperiment.html" class="download" download="BertrandExperiment.html">Bertrand's Experiment</a> | <a href="apps/BertrandExperiment.js" class="download" download="BertrandExperiment.js">BertrandExperiment.js</a></li>
+	<li><a href="apps/TriangleExperiment.html" class="download" download="TriangleExperiment.html">Triangle Experiment</a> | <a href="apps/TriangleExperiment.js" class="download" download="TriangleExperiment.js">TriangleExperiment.js</a></li>
+</ul>
+
+<h4>Bernoulli Trials</h4>
+
+<ul class="object">
+	<li><a href="apps/CoinSampleExperiment.html" class="download" download="CoinSampleExperiment.html">Coin Sample Experiment</a> | <a href="apps/CoinSampleExperiment.js" class="download" download="CoinSampleExperiment.js">CoinSampleExperiment.js</a></li>
+	<li><a href="apps/BinomialCoinExperiment.html" class="download" download="BinomialCoinExperiment.html">Binomial Coin Experiment</a> | <a href="apps/BinomialCoinExperiment.js" class="download" download="BinomialCoinExperiment.js">BinomialCoinExperiment.js</a></li>
+	<li><a href="apps/BinomialTimelineExperiment.html" class="download" download="BinomialTimelineExperiment">Binomial Timeline Experiment</a> | <a href="apps/BinomialTimelineExperiment.js" class="download" download="BinomialTimelineExperiment.js">BinomialTimelineExperiment.js</a></li>
+	<li><a href="apps/GaltonBoardExperiment.html" class="download" download="GaltonBoardExperiment.html">Galton Board Experiment</a> | <a href="apps/GaltonBoardExperiment.js" class="download" download=
+"GaltonBoardExperiment.js">GaltonBoardExperiment.js</a></li>
+	<li><a href="apps/NegativeBinomialExperiment.html" class="download" download="NegativeBinomialExperiment.html">Negative Binomial Experiment</a> | <a href="apps/NegativeBinomialExperiment.js" class="download" download="NegativeBinomialExperiment.js">NegativeBinomialExperiment.js</a></li>
+	<li><a href="apps/PointExperiment.html" class="download" download="PointExperiment.html">Problem of Points Experiment</a> | <a href="apps/PointExperiment.js" class="download" download="PointExperiment.js">PointExperiment.js</a></li>
+	<li><a href="apps/RandomWalkExperiment.html" class="download" download="RandomWalkExperiment.html">Random Walk Experiment</a> | <a href="apps/RandomWalkExperiment.js" class="download" download="RandomWalkExperiment.js">RandomWalkExperiment.js</a></li>
+	<li><a href="apps/BallotExperiment.html" class="download" download="BallotExperiment.html">Ballot Experiment</a> | <a href="apps/BallotExperiment.js" class="download" download="BallotExperiment.js">BallotExperiment.js</a></li>
+	<li><a href="apps/BetaBinomialExperiment.html" class="download" download="BetaBinomialExperiment.html">Beta-Binomial Experiment</a> | <a href="apps/BetaBinomialExperiment.js" class="download" download="BetaBinomialExperiment.js">BetaBinomialExperiment.js</a></li>
+	<li><a href="apps/BetaNegativeBinomialExperiment.html" class="download" download="BetaNegativeBinomialExperiment.html">Beta-Negative Binomial Experiment</a> | <a href="apps/BetaNegativeBinomialExperiment.js" class="download" download="BetaNegativeBinomialExperiment.js">BetaNegativeBinomialExperiment.js</a></li>
+</ul>
+
+<h4>Finite Sampling Models</h4>
+
+<ul class="object">
+	<li><a href="apps/BallUrnExperiment.html" class="download" download="BallUrnExperiment.html">Ball and Urn Experiment</a> | <a href="apps/BallUrnExperiment.js" class="download" download="BallUrnExperiment.js">BallUrnExperiment.js</a></li>
+	<li><a href="apps/CardExperiment.html" class="download" download="CardExperiment.html">Card Sample Experiment</a> | <a href="apps/CardExperiment.js" class="download" download="CardExperiment.js">CardExperiment.js</a></li>
+	<li><a href="apps/FiniteOrderStatisticExperiment.html" class="download" download="FiniteOrderStatisticExperiment.html">Finite Order Statistic Experiment</a> | <a href="apps/OrderStatisticExperiment.js" class="download" download="FiniteOrderStatisticExperiment.js">OrderStatisticExperiment.js</a></li>
+	<li><a href="apps/MatchExperiment.html" class="download" download="MatchExperiment.html">Matching Experiment</a> | <a href="apps/MatchExperiment.js" class="download" download="MatchExperiment.js">MatchExperiment.js</a></li>
+	<li><a href="apps/BirthdayExperiment.html" class="download" download="BirthdayExperiment.html">Birthday Experiment</a> | <a href="apps/BirthdayExperiment.js" class="download" download="BirthdayExperiment.js">BirthdayExperiment.js</a></li>
+	<li><a href="apps/CouponCollectorExperiment.html" class="download" download="CouponCollectorExperiment.html">Coupon Collector Experiment</a> | <a href="apps/CouponCollectorExperiment.js" class="download" download="CouponCollectorExperiment.js">CouponCollectorExxperiment.js</a></li>
+	<li><a href="apps/PolyaExperiment.html" class="download" download="PolyaExperiment.html">P&oacute;lya's Experiment</a> | <a href="apps/PolyaExperiment.js" class="download" download="PolyaExperiment.js">PolyaExperiment.js</a></li>
+	<li><a href="apps/SecretaryExperiment.html" class="download" download="SecretaryExperiment.html">Secretary Experiment</a> | <a href="apps/SecretaryExperiment.js" class="download" download="SecretaryExperiment.js">SecretaryExperiment.js</a></li>
+	<li><a href="apps/SecretaryGame.html" class="download" download="SecretaryGame.html">Secretary Game</a> | <a href="apps/SecretaryGame.js" class="download" download="SecretaryGame.js">SecretaryGame.js</a></li>
+</ul>
+
+<h4>Dice</h4>
+
+<ul class="object">
+	<li><a href="apps/DiceSampleExperiment.html" class="download" download="DiceSampleExperiment.html">Dice Sample Experiment</a> | <a href="apps/DiceSampleExperiment.js" class="download" download="DiceSampleExperiment.js">DiceSampleExperiment.js</a></li>
+	<li><a href="apps/DiceExperiment.html" class="download" download="DiceExperiment.html">Dice Experiment</a> | <a href="apps/DiceExperiment.js" class="download" download="DiceExperiment.js">DiceExperiment.js</a></li>
+	<li><a href="apps/DieCoinExperiment.html" class="download" download="DieCoinExperiment.html">Die Coin Experiment</a> | <a href="apps/DieCoinExperiment.js" class="download" download="DieCoinExperiment.js">DieCoinExperiment.js</a></li>
+	<li><a href="apps/CoinDieExperiment.html" class="download" download="CoinDieExperiment.html">Coin Die Experiment</a> | <a href="apps/CoinDieExperiment.js" class="download" download="CoinDieExperiment.js">CoinDieExperiment.js</a></li>
+</ul>
+
+<h4>Games of Chance</h4>
+
+<ul class="object">
+	<li><a href="apps/PokerExperiment.html" class="download" download="PokerExperiment.html">Poker Experiment</a> | <a href="apps/PokerExperiment.js" class="download" download="PokerExperiment.js">PokerExperiment.js</a></li>
+	<li><a href="apps/PokerDiceExperiment.html" class="download" download="PokerDiceExperiment.html">Poker Dice Experiment</a> | <a href="apps/PokerDiceExperiment.js" class="download" download="PokerDiceExperiment.js">PokerDiceExperiment.js</a></li>
+	<li><a href="apps/ChuckALuckExperiment.html" class="download" download="ChuckALuckExperiment.html">Chuck-a-Luck Experiment</a> | <a href="apps/ChuckALuckExperiment.js" class="download" download="ChuckALuckExperiment.js">ChuckALuckExperiment.js</a></li>
+	<li><a href="apps/CrapsExperiment.html" class="download" download="CrapsExperiment.html">Craps Experiment</a> | <a href="apps/CrapsExperiment.js" class="download" download="CrapsExperiment.js">CrapsExperiment.js</a></li>
+	<li><a href="apps/RouletteExperiment.html" class="download" download="RouletteExperiment.html">Roulette Experiment</a> | <a href="apps/RouletteExperiment.js" class="download" download="RouletteExperiment.js">RouletteExperiment.js</a></li>
+	<li><a href="apps/MontyHallGame.html" class="download" download="MontyHallGame.html">Monty Hall Game</a> | <a href="apps/MontyHallGame.js" class="download" download="MontyHallGame.js">MontyHallGame.js</a></li>
+	<li><a href="apps/MontyHallExperiment.html" class="download" download="MontyHallExperiment.html">Monty Hall Experiment</a> | <a href="apps/MontyHallExperiment.js" class="download" download="MontyHallExperiment.js">MontyHallExperiment.js</a></li>
+	<li><a href="apps/RedBlackGame.html" class="download" download="RedBlackGame.html">Red and Black Game</a> | <a href="apps/RedBlackGame.js" class="download" download="RedBlackGame.js">RedBlackGame.js</a></li>
+	<li><a href="apps/RedBlackExperiment.html" class="download" download="RedBlackExperiment.html">Red and Black Experiment</a> | <a href="apps/RedBlackExperiment.js" class="download" download="RedBlackExperiment.js">RedBlackExperiment.js</a></li>
+</ul>
+
+<h4>Renewal Process</h4>
+
+<ul class="object">
+	<li><a href="apps/GammaExperiment.html" class="download" download="GammaExperiment.html">Gamma Experiment</a> | <a href="apps/GammaExperiment.js" class="download" download="GammaExperiment.js">GammaExperiment.js</a></li>
+	<li><a href="apps/PoissonExperiment.html" class="download" download="PoissonExperiment.html">Poisson Experiment</a> | <a href="apps/PoissonExperiment.js" class="download" download="PoissonExperiment.js">PoissonExperiment.js</a></li>
+	<li><a href="apps/PoissonSplitExperiment.html" class="download" download="PoissonSplitExperiment.html">Two-Type Poisson Experiment</a> | <a href="apps/PoissonSplitExperiment.js" class="download" download="PoissonSplitExperiment.js">PoissonSplitExperiment.js</a></li>
+	<li><a href="apps/Poisson2DExperiment.html" class="download" download="Poisson2DExperiment.html">Two-Dimensional Poisson Experiment</a> | <a href="apps/Poisson2DExperiment.js" class="download" download="Poisson2DExperiment.js">Poisson2DExperiment.js</a></li>
+	<li><a href="apps/RenewalExperiment.html" class="download" download="RenewalExperiment.html">Renewal Experiment</a> | <a href="apps/RenewalExperiment.js" class="download" download="RenewalExperiment.js">RenewalExperiment.js</a></li>
+</ul>
+
+<h4>Interacting Particle Systems</h4>
+
+<ul class="object">
+	<li><a href="apps/FireExperiment.html" class="download" download="FireExperiment.js">Fire Experiment</a> | <a href="apps/FireExperiment.js" class="download" download="FireExperiment.js">FireExperiment.js</a></li>
+	<li><a href="apps/VoterExperiment.html" class="download" download="VoterExperiment.html">Voter Experiment</a> | <a href="apps/VoterExperiment.js" class="download" download="VoterExperiment.js">VoterExperiment.js</a></li>
+</ul>
+
+<h4>Special Distributions</h4>
+
+<ul class="object">
+	<li><a href="apps/SpecialSimulation.html" class="download" download="SpecialSimulation.html">Special Distribution Simulator</a> | <a href="apps/SpecialSimulation.js" class="download" download="SpecialSimulation.js">SpecialSimulation.js</a></li>
+	<li><a href="apps/SpecialCalculator.html" class="download" download="SpecialCalculator.html">Special Distribution Calculator</a> | <a href="apps/SpecialCalculator.js" class="download" download="SpecialCalculator.js">SpecialCalculator.js</a></li>
+	<li><a href="apps/RandomQuantileExperiment.html" class="download" download="RandomQuantileExperiment.html">Random Quantile Experiment</a> | <a href="apps/RandomQuantileExperiment.js" class="download" download="RandomQuantileExperiment.js">RandomQuantileExperiment.js</a></li>	
+	<li><a href="apps/RejectionMethod.html" class="download" download="RejectionMethod.html">Rejection Method Experiment</a> | <a href="apps/RejectionMethod.js" class="download" download="RejectionMethod.js">RejectionMethod.js</a></li>	
+	<li><a href="apps/BivariateNormalExperiment.html" class="download" download="BivariateNormalExperiment.html">Bivariate Normal Experiment</a> | <a href="apps/BivariateNormalExperiment.js" class="download" download="BivariateNormalExperiment.js">BivariateNormalExperiment.js</a></li>
+	<li><a href="apps/BivariateUniformExperiment.html" class="download" download="BivariateUniformExperiment.html">Bivariate Uniform Experiment</a> | <a href="apps/BivariateUniformExperiment.js" class="download" download="BivariateUniformExperiment.js">BivariateUniformExperiment.js</a></li>
+	<li><a href="apps/CauchyExperiment.html" class="download" download="CauchyExperiment.html">Cauchy Experiment</a> | <a href="apps/CauchyExperiment.js" class="download" download="CauchyExperiment.js">CauchyExperiment.js</a></li>
+</ul>
+
+<h4>Random Samples</h4>
+
+<ul class="object">
+	<li><a href="apps/SampleMeanExperiment.html" class="download" download="SampleMeanExperiment.html">Sample Mean Experiment</a> | <a href="apps/SampleMeanExperiment.js" class="download" download="SampleMeanExperiment.js">SampleMeanExperiment.js</a></li>
+	<li><a href="apps/OrderStatisticExperiment.html" class="download" download="OrderStatisticExperiment.html">Order Statistic Experiment</a> | <a href="apps/OrderStatisticExperiment.js" class="download" download="OrderStatisticExperiment.js">OrderStatisticExperiment.js</a></li>
+	<li><a href="apps/ProbabilityPlotExperiment.html" class="download" download="ProbabilityPlotExperiment.html">Probability Plot Experiment</a> | <a href="apps/ProbabilityPlotExperiment.js" class="download" download="ProbabilityPlotExperiment.js">ProbabilityPlotExperiment.js</a></li>
+	<li><a href="apps/HistogramGame.html" class="download" download="HistogramGame.html">Interactive Histogram</a> | <a href="apps/HistogramGame.js" class="download" download="HistogramGame.js">HistogramGame.js</a></li>
+	<li><a href="apps/ErrorGame.html" class="download" download="ErrorGame.html">Error Function App</a> | <a href="apps/ErrorGame.js" class="download" download="ErrorGame.js">ErrorGame.js</a></li>
+	<li><a href="apps/BivariateGame.html" class="download" download="BivariateGame.html">Interactive Scatterplot</a> | <a href="apps/BivariateGame.js" class="download" download="BivariateGame.js">BivariateGame.js</a></li>
+</ul>
+
+<h4>Point Estimation</h4>
+
+<ul class="object">
+	<li><a href="apps/NormalEstimateExperiment.html" class="download" download="NormalEstimateExperiment.html">Normal Estimation Experiment</a> | <a href="apps/NormalEstimateExperiment.js" class="download" download="NormalEstimateExperiment.js">NormalEstimateExperiment.js</a></li>
+	<li><a href="apps/UniformEstimateExperiment.html" class="download" download="UniformEstimateExperiment.html">Uniform Estimation Experiment</a> | <a href="apps/UniformEstimateExperiment.js" class="download" download="UniformEstimateExperiment.js">UniformEstimateExperiment.js</a></li>
+	<li><a href="apps/GammaEstimateExperiment.html" class="download" download="GammaEstimateExperiment.html">Gamma Estimation Experiment</a> | <a href="apps/GammaEstimateExperiment.js" class="download" download="GammaEstimateExperiment.js">GammaEstimateExperiment.js</a></li>
+	<li><a href="apps/BetaEstimateExperiment.html" class="download" download="BetaEstimateExperiment.html">Beta Estimation Experiment</a> | <a href="apps/BetaEstimateExperiment.js" class="download" download="BetaEstimateExperiment.js">BetaEstimateExperiment.js</a></li>
+	<li><a href="apps/ParetoEstimateExperiment.html" class="download" download="ParetoEstimateExperiment.html">Pareto Estimation Experiment</a> | <a href="apps/ParetoEstimateExperiment.js" class="download" download="ParetoEstimateExperiment.js">ParetoEstimateExperiment.js</a></li>
+	<li><a href="apps/BetaCoinExperiment.html" class="download" download="BetaCoinExperiment.html">Beta Coin Experiment</a> | <a href="apps/BetaCoinExperiment.js" class="download" download="BetaCoinExperiment.js">BetaCoinExperiment.js</a></li>
+</ul>
+
+<h4>Interval Estimation</h4>
+
+<ul class="object">
+	<li><a href="apps/MeanEstimateExperiment.html" class="download" download="MeanEstimateExperiment.html">Mean Estimate Experiment</a> | <a href="apps/MeanEstimateExperiment.js" class="download" download="MeanEstimateExperiment.js">MeanEstimateExperiment.js</a></li>
+	<li><a href="apps/ProportionEstimateExperiment.html" class="download" download="ProportionEstimateExperiment.html">Proportion Estimate Experiment</a> | <a href="apps/ProportionEstimateExperiment.js" class="download" download="ProportionEstimateExperiment.js">ProportionEstimateExperiment.js</a></li>
+	<li><a href="apps/VarianceEstimateExperiment.html" class="download" download="VarianceEstimateExperiment.html">Variance Estimate Experiment</a> | <a href="apps/VarianceEstimateExperiment.js" class="download" download="VarianceEstimateExperiment.js">VarianceEstimateExperiment.js</a></li>
+</ul>
+
+<h4>Hypothesis Testing</h4>
+
+<ul class="object">
+	<li><a href="apps/MeanTestExperiment.html" class="download" download="MeanTestExperiment.html">Mean Test Experiment</a> | <a href="apps/MeanTestExperiment.js" class="download" download="MeanTestExperiment.js">MeanTestExperiment.js</a></li>
+	<li><a href="apps/ProportionTestExperiment.html" class="download" download="ProportionTestExperiment.html">Proportion Test Experiment</a> | <a href="apps/ProportionTestExperiment.js" class="download" download="ProportionTestExperiment.js">ProportionTestExperiment.js</a></li>
+	<li><a href="apps/SignTestExperiment.html" class="download" download="SignTestExperiment.html">Sign Test Experiment</a> | <a href="apps/SignTestExperiment.js" class="download" download="SignTestExperiment.js">SignTestExperiment.js</a></li>
+	<li><a href="apps/VarianceTestExperiment.html" class="download" download="VarianceTestExperiment.html">Variance Test Experiment</a> | <a href="apps/VarianceTestExperiment.js" class="download" download="VarianceTestExperiment.js">VarianceTestExperiment.js</a></li>
+	<li><a href="apps/DiceFitExperiment.html" class="download" download="DiceFitExperiment.html">Dice Goodness of Fit Experiment</a> | <a href="apps/DiceFitExperiment.js" class="download" download="DiceFitExperiment.js">DiceFitExperiment.js</a></li>
+
+</ul>
+
+<h4>Markov Processes</h4>
+
+<ul class="object">
+	<li><a href="apps/TwoStateDiscrete.html" class="download" download="TwoStateDiscrete.html">Two-State Discrete-Time Chain</a> | <a href="apps/TwoStateDiscrete.js" class="download" download="TwoStateDiscrete.js">TwoStateDiscrete.js</a></li>
+	<li><a href="apps/EhrenfestExperiment.html" class="download" download="EhrenfestExperiment.html">Ehrenfest Experiment</a> | <a href="apps/EhrenfestExperiment.js" class="download" download="EhrenfestExperiment.js">EhrenfestExperiment.js</a></li>
+	<li><a href="apps/BernoulliLaplaceExperiment.html" class="download" download="BernoulliLaplaceExperiment.html">Bernoulli-Laplace Experiment</a> | <a href="apps/BernoulliLaplaceExperiment.js" class="download" download="BernoulliLaplaceExperiment.js">BernoulliLaplaceExperiment.js</a></li>
+	<li><a href="apps/SuccessRunsExperiment.html" class="download" download="SuccessRunsExperiment.html">Success Runs Experiment</a> | <a href="apps/SuccessRunsExperiment.js" class="download" download="SuccessRunsExperiment.js">SuccessRunsExperiment.js</a></li>
+	<li><a href="apps/RemainingLifeExperiment.html" class="download" download="RemainingLifeExperiment.html">Remaining Life Experiment</a> | <a href="apps/RemainingLifeExperiment.js" class="download" download="RemainingLifeExperiment.js">RemainingLifeExperiment.js</a></li>
+</ul>
+
+<h4>Brownian Motion</h4>
+
+<ul class="object">
+	<li><a href="apps/BrownianMotion.html" class="download" download="BrownianMotion.html">Standard Brownian Motion</a> | <a href="apps/BrownianMotion.js" class="download" download="BrownianMotion.js">BrownianMotion.js</a></li>
+	<li><a href="apps/AbsoluteBrownianMotion.html" class="download" download="AbsoluteBrownianMotion.html">Absolute Brownian Motion</a> | <a href="apps/AbsoluteBrownianMotion.js" class="download" download="AbsoluteBrownianMotion.js">AbsoluteBrownianMotion.js</a></li>
+	<li><a href="apps/ReflectedBrownianMotion.html" class="download" download="ReflectedBrownianMotion.html">Reflected Brownian Motion</a> | <a href="apps/ReflectedBrownianMotion.js" class="download" download="ReflectedBrownianMotion.js">ReflectedBrownianMotion.js</a></li>
+	<li><a href="apps/DriftBrownianMotion.html" class="download" download="DriftBrownianMotion.html">Brownian Motion with Drift and Scaling</a> | <a href="apps/DriftBrownianMotion.js" class="download" download="DriftBrownianMotion.js">DriftBrownianMotion.js</a></li>
+	<li><a href="apps/GeometricBrownianMotion.html" class="download" download="GeometricBrownianMotion.html">Geometric Brownian Motion</a> | <a href="apps/GeometricBrownianMotion.js" class="download" download="GeometricBrownianMotion.js">GeometricBrownianMotion.js</a></li>
+	<li><a href="apps/BrownianBridge.html" class="download" download="BrownianBridge.html">Brownian Bridge</a> | <a href="apps/BrownianBridge.js" class="download" download="BrownianBridge.js">BrownianBridge.js</a></li>
+	<li><a href="apps/IntegratedBrownianMotion.html" class="download" download="IntegratedBrownianMotion.html">Integrated Brownian Motion</a> | <a href="apps/IntegratedBrownianMotion.js" class="download" download="IntegratedBrownianMotion.js">IntegratedBrownianMotion.js</a></li>
+	<li><a href="apps/2DBrownianMotion.html" class="download" download="2DBrownianMotion.html">Two-Dimensional Brownian Motion</a> | <a href="apps/2DBrownianMotion.js" class="download" download="2DBrownianMotion.js">2DBrownianMotion.js</a></li>
+	<li><a href="apps/HittingTime.html" class="download" download="HittingTime.html">Hitting Time Experiment</a> | <a href="apps/HittingTime.js" class="download" download="HittingTime.js">HittingTime.js</a></li>
+</ul>
+
+<h3 id="images">3. Images</h3>
+
+<p>The following list gives images used in the apps. Click on the links to download the images in PNG format.</p>
+
+<h4 id="basic">Basic Images</h4>
+
+<ul class="object">
+	<li><a href="apps/step.png" class="download" download="step.png">step.png</a> (step button)</li>
+	<li><a href="apps/run.png" class="download" download="run.png">run.png</a> (run button)</li>
+	<li><a href="apps/stop.png" class="download" download="stop.png">stop.png</a> (stop button)</li>
+	<li><a href="apps/reset.png" class="download" download="reset.png">reset.png</a> (reset button)</li>
+</ul>
+
+<h4 id="other">Specialized Images</h4>
+
+<ul class="object">
+	<li><a href="apps/cards.png" class="download" download="cards.png">cards.png</a> (apps with playing cards)</li>
+	<li><a href="apps/Car.png" class="download" download="Car.png">Car.png</a> (Monty Hall apps)</li>
+	<li><a href="apps/Goat.png" class="download" download="Goat.pngs">Goat.png</a> (Monty Hall apps)</li>
+	<li><a href="apps/RouletteWheel.png" class="download" download="RouletteWheel.png">RouletteWheel.png</a> (Roulette experiment)</li>
+	<li><a href="apps/right.png" class="download" download="right.png">right.png</a> (Galton Board Game)</li>
+	<li><a href="apps/left.png" class="download" download="left.png">left.png</a> (Galton Board Game)</li>
+	<li><a href="apps/RedBlackIcon.png" class="download" download="RedBlackIcon.png">RedBlackIcon.png</a> (Red Black Game)</li>
+	<li><a href="apps/CheckGreen.png" class="download" download="CheckGreen.png">CheckGrenn.png</a> (Secretary Game)</li>
+	<li><a href="apps/CrossRed.png" class="download" download="CrossRed.png">CrossRed.png</a> (Secretary Game)</li>
+</ul>
+
+<h3 id="style">CSS Style Sheets</h3>
+
+<p>We have tried to implement the <q>best practice</q> of separating content from presentation, through the use of Cascading Style Sheets (<abbr>CSS</abbr>). The <a href="http://www.w3.org/Style/CSS/" class="external" target="external">CSS language</a> is a standard of the <a href="http://www.w3.org/" class="external" target="external">World Wide Web Consortium</a> (<abbr>W3C</abbr>). Click on the links to download the stylesheets.</p>
+
+<ul class="object">
+	<li><a href="ScreenStyles.css" class="download" download="ScreenStyles.css">Screen style sheet</a>. This is a style sheet that defines the presentation of basic HTML elements for the screen.</li>
+	<li><a href="PrintStyles.css" class="download" download="PrintStyles.css">Print style sheet</a>. This is a style sheet that defines the presentation of basic HTML elements for print.</li>
+</ul>
+
+<footer>
+
+<ol class="map">
+	<li class="parent"><a href="index.html" class="main">Random</a></li>
+	<li class="child">Object Library</li>
+</ol>
+
+<ul class="map">
+	<li class="sister"><a href="JavaScript:openContents()" class="ancillary">Contents</a></li>
+	<li class="sister"><a href="JavaScript:openApp('index')" class="app">Apps</a></li>
+	<li class="sister"><a href="JavaScript:openData('index')" class="data">Data Sets</a></li>
+	<li class="sister"><a href="JavaScript:openBiography('index')" class="biography"> Biographies</a></li>
+	<li class="sister"><a href="JavaScript:openSearch()" class="ancillary">Search</a></li>
+	<li class="sister"><a href="JavaScript:openComment()" class="ancillary">Feedback</a></li>
+	<li class="child"><a href="JavaScript:openCopyright()" class="ancillary">&copy;</a></li>
+</ul>
+</footer>
+
+
+</body>
+</html>

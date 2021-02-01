@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="utf-8" />
+<title>Introduction</title>
+<meta name="Author" content="Kyle Siegrist" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="Keywords" content="probability, statistics, General Information" />
+<link rel="icon" href="icons/Icon.png" type="image/png" />
+<link rel="stylesheet" href="ScreenStyles.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="PrintStyles.css" type="text/css" media="print" />
+<link rel="copyright" href="Copyright.html" />
+<link rel="contents" href="index.html" />
+<script>var baseURL = "./"; window.name = "main";</script>
+<script src="scripts.js"></script>
+</head>
+
+<body>
+
+<header>
+
+<ol class="map">
+	<li class="parent"><a href="index.html" class="main">Random</a></li>
+	<li class="child">Introduction</li>
+</ol>
+
+<h2 class="main">Introduction</h2>
+</header>
+
+<h3>Overview</h3>
+
+<p><em>Random</em> (formerly <em>Virtual Laboratories in Probability and Statistics</em>) is a website devoted to probability, mathematical statistics, and stochastic processes, and is intended for teachers and students of these subjects. Many of the elements are designed so that they can be modified and reused to fit the needs of students at various levels. The project has two basic types of resources:</p>
+
+<ul>
+	<li class="chapter">Expository Material</li>
+	<li class="ancillary">Ancillary Material</li>
+</ul>
+
+<p>Ancillary materials open in small pop-up windows on laptop and desktop computers, and in separate tabs on tablets and phones.  Thus, these materials can remain open and accessible while you browse the expository material in the main window.  The expository material has extensive links to the ancillary materials, but some of these materials are also designed to stand alone so that they can be used in other projects.  The ancillary materials are of the following types:</p>
+
+<ul>
+	<li class="app"><a href="JavaScript:openApp('index')" class="app">Web Apps</a></li>
+	<li class="data"><a href="JavaScript:openData('index')" class="data">Data Sets</a></li>
+	<li class="biography"><a href="JavaScript:openBiography('index')" class="biography">Biographical Sketches</a></li>
+	<li class="art"><a href="JavaScript:openArt('index')" class="art"">Art</a></li>
+</ul>
+
+<p>The major components of the project are discussed in more detail below.</p>
+
+<h3>Technologies and Browser Requirements</h3>
+
+<p>This project uses <dfn>HTML5</dfn> web technologies.  Almost all of these tecnologies are open, published standards endorsed by various standards groups, including the <a href="http://www.w3.org/" target="external" class="external" >World Wide Web Consortium</a>. One of our goals is for this site to be fully standards compliant and to implement best practices for web-based expository mathematics. The list below describes the main technologies used; follow the links for more information.</p>
+
+<ul class="tool">
+	<li><dfn>Canvas Element</dfn>. The interactive apps use the <a href="https://www.w3.org/TR/html5/" class="external" target="external">HTML5</a> <em>canvas</em> element for the display of graphical objects.</li>
+	<li><dfn>Details Element</dfn>. The <a href="https://www.w3.org/TR/html5/" class="external" target="external">HTML5</a> <em>details</em> element is used to contract and expand proofs and solutions to exercises.</li>
+	<li><dfn>JavaScript</dfn>. The interactive apps are written in <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" class="external" target="external">JavaScript</a> and the ancillary elements (apps, data sets, and biographical sketches) are opened in small child windows that are launched with JavaScript.</li>
+	<li><dfn>CSS</dfn>. The presentation of most HTML elements is controlled by <a href="http://www.w3.org/Style/CSS/" target="external" class="external" >CSS</a>, which stands for Cascading Style Sheet.</li>
+	<li><dfn>PNG</dfn>. Graphics files are in <a href="http://www.libpng.org/pub/png/" target="external" class="external" >PNG</a> format, which stands for <dfn>Portable Network Graphics</dfn>. This is a format for compressed graphics files with no loss of information, and is similar to GIF format, but better and without the patent encumbrances of GIF.</li>
+</ul>
+
+<h4>Mathematical Notation</h4>
+
+<p>Display of mathematical notation is handled by the open source <a href="http://www.mathjax.org" class="external" target="external">MathJax project</a> (which in turn uses JavaScript and CSS). Mathematical expressions rendered by MathJax scale appropriately with the surrounding text, and can be copied and pasted into other applications.</p>
+
+<h4>Browsers</h4>
+
+<p>To use this project properly, you will need a modern browser that supports these technologies. The latest versions of <a href="http://www.google.com/chrome" class="external" target="external">Chrome</a>, <a href="http://www.mozilla.com" class="external" target="external">Firefox</a>, <a href="http://www.opera.com/" class="external" target="external">Opera</a>, and <a href="http://www.apple.com/safari/" class="external" target="external">Safari</a> are the best choices. The  <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home" class="external" target="external">Internet Explorer</a> and <a href="https://www.microsoft.com/en-us/windows/microsoft-edge#tDVQBb3FPFgf1Azr.97" class="external" target="external">Edge</a> browsers for Windows do not fully support the technologies used in this project.</p>
+
+<h3>Expository Material</h3>
+
+<p>The expository material is divided into chapters, similar to chapters in a conventional book. The chapters explore the basic theory and applications of probability, mathematical statistics, and certain special models and stochastic processes.  Each chapter in turn is divided into web <q>pages</q>, similar to sections in a conventional book. Each section explores a particular topic, mostly through a series of exercises that guide the student through the development of the mathematical theory and the development of probabilistic intuition.</p>
+
+<h4>Prerequisites</h4>
+
+<p>The expository text assumes knowledge of calculus, at the standard undergraduate level. A few sections require knowledge of linear algebra, at the standard undergraduate level. No prior knowledge of probability or statistics is assumed. Many of the chapters are divided into <em>basic topics</em> that are essential to all students, and <em>advanced and special topics</em> that can be omitted for new students.</p>
+
+<h4>Exercises</h4>
+
+<p>The exercises in the expository sections are of three basic types, each keyed with a special icon.</p>
+
+<ul>
+	<li class="math"><dfn>Mathematical exercises</dfn> require only paper and pencil. Many of these develop the basic mathematical theory and thus involve proofs or derivations.  Other mathematical exercises are computational or involve examples and special cases. It is very important to read the exercises that develop the basic theory, even if you are uninteresed in the proofs. Proofs of theoretical results and answers to computational problems are provided, as described below.</li>
+	<li class="app"><dfn>Simulation exercises</dfn> are based on apps (described below). In some cases, the student is only asked to observe the behavior of a simulation or generate and observe data. In other cases, hand computations may also be required. In some cases, a calculator or statistical software will be necessary. In all cases, the app exercises are intended to demonstrate the mathematical theory in a dynamic and interactive way.</li>
+	<li class="data"><dfn>Data analysis exercises</dfn> are keyed to data sets. Many of these exercises require statistical software or at least a calculator.</li>
+</ul>
+
+<p>Proofs of most theoretical exercises and answers for most computational exercises are provided. On supported browsers (Chrome, Firefox, Opera, and Safari), you can expand and contract the proofs and answers. At the top of each expository page (in the navigation line, on the right), two buttons are provided that allow you to expand or contract all details (proofs and answers) on that page.</p>
+
+<ul>
+	<li class="expand">Click to expand all details on the page.</li>
+	<li class="contract">Click to contract all details on the page.</li>
+</ul>
+
+<h3>Apps</h3>
+
+<p>The web apps are designed to demonstrate the mathematical theory in a dynamic, interactive way. Each app runs in a separate window, with the small amount of text necessary to describe the app and its notation, but with little explicit mathematical exposition. Thus, the apps can be used with the expository portion of this project, or by themselves, at various mathematical levels.</p>
+
+<p>The apps generally fall into two basic types:</p>
+
+<ul class="app">
+	<li><dfn>Simulation apps</dfn>. These are simulations of random processes, designed to show the agreement between the predictions of the mathematical theory and the behavior of the process. These are generally referred to as <dfn>experiments</dfn> in the text. Generally, the student can vary parameters and choose among various probability distributions that drive the simulation.</li>
+	<li><dfn>Data generation apps</dfn>. These are apps in which the student generates the data, by making choices in a game, or clicking in a scatterplot or number line. These are generally referred to as <dfn>games</dfn> in the text.</li>
+</ul>
+
+<h4>Graphical User Interface</h4>
+
+<p>A standard <dfn>Graphical User Interface</dfn> (GUI) is used, with command buttons, scroll bars and list boxes. There is no programming or command language, so students should be able to run the apps with little or no instructions. The apps run in a separate window, so that the student can easily move back and forth between the apps and the corresponding exposition, and so that a student can keep an app open and running as she browses through the text.</p>
+
+<p>The app output is displayed numerically and graphically in a set of coordinated tables and graphs. A consistent color-coding is used. Graphical objects that depend only on the distributions or parameters are shown in blue, while graphical objects that depend on data (either simulation or student generated) are shown in red. Most app objects have <dfn>tool tips</dfn>, small pop-up boxes that explain the object. Rest the cursor on an object to display the tool tip.</p>
+
+<h4>The Main Toolbar</h4>
+
+<p>Apps that are simulations of random processes all have the <dfn>Main Toolbar</dfn> with the following basic buttons and controls:</p>
+
+<ul>
+	<li class="step"><dfn>Step</dfn>. This button runs the experiment one time, updating data and graphs. In some cases sound and delays are incorporated to give the student maximum feedback about the random process.</li>
+	<li class="run"><dfn>Run</dfn>. This button runs the experiment repeatedly. The frequency of data and graphical updates can be controlled by the student. No sounds or delays are incorporated so that the simulation will run fast.</li>
+	<li class="stop"><dfn>Stop</dfn>. This button stops the simulation but preserves all data and graphs.</li>
+	<li class="reset"><dfn>Reset</dfn>. This button clears all simulation data and graphs and restores the random process to its initial state.</li>
+</ul>
+
+<p>The <dfn>stop frequency</dfn> is selected from the second list box on the main toolbar. The stop frequency is the number of runs before the simulation stops in run mode. In most apps you can select a stop frequency of 10, 100, 1000, or 10000. In some apps, other stop rules are provided.</p>
+
+<h4>Parameter Toolbars</h4>
+
+<p>The student can easily vary the parameters, select distributions, and choose among appropriate modeling assumptions using list boxes, scroll bars, and pop-up dialog boxes. These controls appear on <dfn>parameter toolbars</dfn> at the top of the app window, below the main toolbar.</p>
+
+<h3>The Object Library</h3>
+
+<p>The <q>objects</q> that make up this project, particularly the interactive web apps, are designed, to the extent possible, so that they can be re-used in other projects and modified, if necessary. The <a href="Objects.html" class="main">Object Library</a> contains descriptions of  of these objects and instructions for using them. </p>
+
+
+<h3>Other Ancillary Materials</h3>
+
+<h4>Data Sets</h4>
+
+<p>Our project has a number of data sets from real statistical studies, many of them historically interesting. The page for each data set has a brief description of the data set and its source. The data set itself is given either in a table or in a scrollable text area, so that the data can be copied and pasted into a statistical or spreadsheet program.. Also, in most cases, links to the data set in standard tab-separated text format and comma-separated text format are provided, so that the data set can be downloaded and opened in a statistical or spreadsheet program.</p>
+
+<h4>Biographical Sketches</h4>
+
+<p>A brief biographical sketch is provided for most of the famous persons referenced in the expository material. There are approximately 100 biographical sketches in total.</p>
+
+<h4>Art</h4>
+
+<p>This is a small collection of paintings and other art forms strongly influenced by games of chance or randomness generally.</p>
+
+<h3>Organization</h3>
+
+<h4>Navigation</h4>
+
+<p>A <q>you are here</q> navigational map is given on each page. The contents page of a chapter has links to the <em>Random</em> home page and to the contents pages of the other chapters. Each section in a chapter has links to the <em>Random</em> home page, to the contents page of the chapter and to the other sections in the chapter. Links that open in the main browser window are colored blue.</p>
+
+<p>Additionally, the footer on each page has links to the ancillary materials that open in separate, small windows without menus or toolbars. Links to ancillary materials are colored red. Each footer also has links to the following:</p>
+
+<ul class="ancillary">
+	<li><a href="JavaScript:openContents()" class="ancillary">Table of contents</a> (site map)</li>
+	<li><a href="JavaScript:openComment()" class="ancillary">Feedback form</a></li>
+	<li><a href="JavaScript:openCopyright()" class="ancillary">Information on rights and permissions</a></li>
+	<li><a href="JavaScript:openSearch()" class="ancillary">Google custom search of the Virtual Labs site</a></li>
+</ul>
+
+<footer>
+<ol class="map">
+	<li class="parent"><a href="index.html" class="main">Random</a></li>
+	<li class="child">Introduction</li>
+</ol>
+
+<ul class="map">
+	<li class="sister"><a href="JavaScript:openContents()" class="ancillary">Contents</a></li>
+	<li class="sister"><a href="JavaScript:openApp('index')" class="app">Apps</a></li>
+	<li class="sister"><a href="JavaScript:openData('index')" class="data">Data Sets</a></li>
+	<li class="sister"><a href="JavaScript:openBiography('index')" class="biography"> Biographies</a></li>
+	<li class="sister"><a href="JavaScript:openSearch()" class="ancillary">Search</a></li>
+	<li class="sister"><a href="JavaScript:openComment()" class="ancillary">Feedback</a></li>
+	<li class="child"><a href="JavaScript:openCopyright()" class="ancillary">&copy;</a></li>
+</ul>
+</footer>
+
+</body>
+
+</html>
