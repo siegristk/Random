@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Card Sample Experiment</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, simulation, random sample, playinng cards">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Card Experiment
+		"use strict";
+		class CardSampleApp extends SimApp {
+			constructor(name, n) {
+				super(name);
+				this.n = n;
+			}
+			initialize() {
+				super.initialize();
+				//Data table
+				this.dataTable = new DataTable(this.tables, 1000, 125);
+				this.dataTable.setHeader(["Run", "X"])
+				//Parameters
+				this.nParam = new Parameter(this.toolbar, "<var>n</var>", "Number of cards");
+				this.nParam.setProperties(1, 52, 1, this.n);
+				this.nParam.setMethod(this.name, "reset()");
+				//cards
+				this.hand = new CardHand(this.graphs);
+				this.reset();
+			}
+			reset() {
+				this.n = this.nParam.getValue();
+				//Datatable headings
+				this.hand.setCards(this.n, "X");
+				super.reset();
+			}
+			simulate() {
+				let data = this.hand.deal();
+				this.dataTable.setCurrentData([this.runCount, "(" + data + ")"]);
+				super.simulate();
+			}
+		}
+		const app = new CardSampleApp("app", 5);
+		window.resizeTo(1100, 600);
+	</script>
+</head>
+
+<body class="ancillary" onload="app.initialize();">
+
+<header>
+	<h3 class="ancillary">Card Sample Experiment</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>The experiment consists of dealing \(n\) cards at random (and without replacement) from a standard deck of 52 cards. Random variable \(X_i\) gives the denomination and suit of card \(i\) for \(i \in \{1, 2, \ldots, n\}\), so \(\boldsymbol{X} = (X_1, X_2, \ldots, X_n)\) is the card hand. This sequence is recorded in the data table. The parameter \(n\) can be varied from 1 to 52 with the input control.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="sister">Card Sample Experiment</li>
+		<li class="child">Card images created by <a href="https://www.me.uk/cards" class="external" target="external">Adrian Kennard</a></li>
+	</ol>
+</footer>
+
+</body>
+</html>

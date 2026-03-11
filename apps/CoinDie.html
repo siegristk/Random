@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Coin-Die Experiment</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, simulation, coin, die, coin-die distribution, conditional distribution">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Coin-die experiment
+		"use strict";
+		class CoinDieApp extends SimApp {
+			constructor(name, p) {
+				super(name);
+				this.p = p;
+			}
+			initialize() {
+				super.initialize();
+				//Data table
+				this.dataTable = new DataTable(this.tables, 200, 100);
+				this.dataTable.setHeader(["Run", "X", "Y"]);
+				//Parameters 
+				this.pParam = new Parameter(this.toolbar, "<var>p</var>", "Probabillity of heads");
+				this.pParam.setProperties(0, 1, 0.01, this.p);
+				this.pParam.setMethod(this.name, "reset()");
+				//Dice probabilities
+				this.greenSelect = new Select(this.toolbar, "Green dice probabilities");
+				this.greenSelect.setOptions(["fair", "1-6", "2-5", "3-4", "left", "right"], ["Fair", "1-6 flat", "2-5 flat", "3-4 flat", "Skewed left", "Skewed right"], 0);
+				this.greenSelect.setMethod(this.name, "reset()");
+				this.greenSelect.select.style = "background: green; color: white;";
+				this.redSelect = new Select(this.toolbar, "Red dice probabilities");
+				this.redSelect.setOptions(["fair", "1-6", "2-5", "3-4", "left", "right"], ["Fair", "1-6 flat", "2-5 flat", "3-4 flat", "Skewed left", "Skewed right"], 0);
+				this.redSelect.setMethod(this.name, "reset()");
+				this.redSelect.select.style = "background: red; color: white;"
+				//Gadgets
+				this.coin = new Coin(this.graphs);
+				this.greenDie = new Die(this.graphs);
+				this.greenDie.backColor = "green";
+				this.redDie = new Die(this.graphs);
+				//Distribution graph and table
+				this.xGraph = new DistGraph(this.graphs, 200, 200);
+				this.xTable = new DistTable(this.tables, 200, 100);
+				this.yGraph = new DistGraph(this.graphs, 300, 200);
+				this.yTable = new DistTable(this.tables, 200, 100);
+				this.reset();
+			}
+			reset() {
+				this.p = this.pParam.getValue();
+				this.coin.setValue(-1);
+				this.greenDie.setValue(0);
+				this.redDie.setValue(0);
+				//Distributions
+				let p = this.p, dieProb = [];
+				switch(this.greenSelect.getValue()) {
+					case "fair":
+						this.greenProb = [1/6, 1/6, 1/6, 1/6, 1/6, 1/6];
+						break;
+					case "1-6":
+						this.greenProb = [1/4, 1/8, 1/8, 1/8, 1/8, 1/4];
+						break;
+					case "2-5":
+						this.greenProb = [1/8, 1/4, 1/8, 1/8, 1/4, 1/8];
+						break;
+					case "3-4": 
+						this.greenProb = [1/8, 1/8, 1/4, 1/4, 1/8, 1/8];
+						break;
+					case "left":
+						this.greenProb = [1/21, 2/21, 3/21, 4/21, 5/21, 6/21];
+						break;
+					case "right":
+						this.greenProb = [6/21, 5/21, 4/21, 3/21, 2/21, 1/21];
+						break;
+				}
+				switch(this.redSelect.getValue()) {
+					case "fair":
+						this.redProb = [1/6, 1/6, 1/6, 1/6, 1/6, 1/6];
+						break;
+					case "1-6":
+						this.redProb = [1/4, 1/8, 1/8, 1/8, 1/8, 1/4];
+						break;
+					case "2-5":
+						this.redProb = [1/8, 1/4, 1/8, 1/8, 1/4, 1/8];
+						break;
+					case "3-4": 
+						this.redProb = [1/8, 1/8, 1/4, 1/4, 1/8, 1/8];
+						break;
+					case "left":
+						this.redProb = [1/21, 2/21, 3/21, 4/21, 5/21, 6/21];
+						break;
+					case "right":
+						this.redProb = [6/21, 5/21, 4/21, 3/21, 2/21, 1/21];
+						break;
+				}
+				for (let i = 0; i < 6; i++) dieProb[i] = (1 - p) * this.greenProb[i] + p * this.redProb[i];
+				this.xDist = new BernoulliDistribution(p);
+				this.xGraph.setDist(this.xDist, "X");
+				this.xTable.setDist(this.xDist, "X");
+				this.yDist = new Distribution(1, 6, 1, DISC, dieProb);
+				this.yGraph.setDist(this.yDist, "Y");
+				this.yTable.setDist(this.yDist, "Y");
+			}
+			simulate() {
+				this.greenDie.setValue(0);
+				this.redDie.setValue(0);
+				let x = this.coin.toss(this.p), y = 0;
+				if (x == 0) y = this.greenDie.roll(this.greenProb);
+				else y = this.redDie.roll(this.redProb);
+				this.xDist.setValue(x);
+				this.yDist.setValue(y);
+				this.xGraph.update();
+				this.xTable.update();
+				this.yGraph.update();
+				this.yTable.update();
+				this.dataTable.setCurrentData([this.runCount, x, y]);
+				super.simulate();
+			}
+		}
+		const app = new CoinDieApp("app", 0.5);
+		window.resizeTo(800, 600);
+	</script>
+</head>
+
+<body class="ancillary" onload="app.initialize();">
+
+<header>
+	<h3 class="ancillary">Coin-Die Experiment</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>The coin die experiment consists of first tossing a coin, and then rolling a red die if the coin lands head or a green die if the coin lands tails. Random variable \(X\) gives the coin score (1 for heads and 0 for tails) and random variable \(Y\) gives the die score. The probability distribution that governs the red die and the distribution that governs the green die can be specified with the select boxes; the choices are</p>
+
+<ul>
+	<li><dfn>fair</dfn>: each face has probability \(1 / 6\).	</li>
+	<li><dfn>1-6 flat</dfn>: faces 1 and 6 have probability \(1 / 4\) each; faces 2, 3, 4, and 5 have probability \(1 / 8\) each.</li>
+	<li><dfn>2-5 flat</dfn>: faces 2 and 5 have probability \(1 / 4\) each; faces 1, 3, 4, and 6 have probability \(1 / 8\) each.</li>
+	<li><dfn>3-4 flat</dfn>: faces 3 and 4 have probability \(1 / 4\) each; faces 1, 2, 5, and 6 have probability \(1 / 8\) each.</li>
+	<li><dfn>skewed left</dfn>: face \(i\) has probability \(i / 21\) for \(i \in \{1, 2, 3, 4, 5, 6\}\).	</li>
+	<li><dfn>skewed right</dfn>: face \(i\) has probability \((7 - i) / 21\) for \(i \in \{1, 2, 3, 4, 5, 6\}\).	</li>
+</ul>
+
+<p>Variables \(X\) and \(Y\) are recorded in the data table, and their distributions are described in the distribution graphs and tables. The probability of heads \(p\) for the coin can be varied with a scrollbar. This app illustrates conditional probability and conditional distributions.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Coin-Die Experiment</li>
+	</ol>
+</footer>
+
+</body>
+</html>

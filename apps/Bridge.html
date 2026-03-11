@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Bridge Experiment</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, simulation, bridge, cards, high-card distribution, suit distribution">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Bridge Experiment 
+		"use strict";
+		class BridgeApp extends SimApp {
+			constructor(name) {
+				super(name);
+			}
+			initialize() {
+				super.initialize(); 
+				//Cards
+				this.hand = new CardHand(this.graphs);
+				this.hand.setCards(13, "X");
+				//Data table
+				this.dataTable = new DataTable(this.tables, 900, 125);
+				let header = this.hand.headings;
+				header.unshift("Run");
+				this.dataTable.setHeader(header);
+				//Random variable select
+				this.rvSelect = new Select(this.toolbar, "Random variable");
+				let values = ["aces", "kings", "queens", "jacks", "others", "high", "spades", "hearts", "diamonds", "clubs", "voids", "singles", "doubles", "short", "long", "sparse"];
+				let options = ["Aces", "Kings", "Queens", "Jacks", "Others", "High Card Value", "Spades", "Hearts", "Diamonds", "Clubs", "Voids", "Singles", "Doubles", "Short suit", "Long suit", "Sparse Suit Value"];
+				this.rvSelect.setOptions(values, options, 5);
+				this.rvSelect.setMethod(this.name, "setDist()")
+				//Distribution
+				this.distGraph = new DistGraph(this.graphs, 400, 200);
+				this.distTable = new DistTable(this.graphs, 300, 125);
+				this.aceDist = new HypergeometricDistribution(52, 4, 13);
+				this.kingDist = new HypergeometricDistribution(52, 4, 13);
+				this.queenDist = new HypergeometricDistribution(52, 4, 13);
+				this.jackDist = new HypergeometricDistribution(52, 4, 13);
+				this.otherDist = new HypergeometricDistribution(52, 36, 13);
+				this.spadeDist = new HypergeometricDistribution(52, 13, 13);
+				this.heartDist = new HypergeometricDistribution(52, 13, 13);
+				this.diamondDist = new HypergeometricDistribution(52, 13, 13);
+				this.clubDist = new HypergeometricDistribution(52, 13, 13);
+				this.shortDist = new ShortDistribution();
+				this.longDist = new LongDistribution();
+				this.voidDist = new VoidDistribution();
+				this.singleDist = new SingleDistribution();
+				this.doubleDist = new DoubleDistribution();
+				this.sparseDist = new SparseDistribution();
+				this.highDist = new HighCardDistribution();
+				this.reset();
+			}
+			reset() {
+				this.hand.reset();
+				this.aceDist.data.reset();
+				this.kingDist.data.reset();
+				this.queenDist.data.reset();
+				this.jackDist.data.reset();
+				this.otherDist.data.reset();
+				this.highDist.data.reset();
+				this.spadeDist.data.reset();
+				this.heartDist.data.reset();
+				this.diamondDist.data.reset();
+				this.clubDist.data.reset();
+				this.voidDist.data.reset();
+				this.singleDist.data.reset();
+				this.doubleDist.data.reset();
+				this.shortDist.data.reset();
+				this.longDist.data.reset();
+				this.sparseDist.data.reset();
+				this.setDist();
+				super.reset();
+			}
+			setDist() {
+				switch(this.rvSelect.getValue()) {
+					case "aces":
+						this.distGraph.setDist(this.aceDist, "A");
+						this.distTable.setDist(this.aceDist, "A");
+						break;
+					case "kings":
+						this.distGraph.setDist(this.kingDist, "K");
+						this.distTable.setDist(this.kingDist, "K");
+						break;
+					case "queens":
+						this.distGraph.setDist(this.queenDist, "Q");
+						this.distTable.setDist(this.queenDist, "Q");
+						break;
+					case "jacks":
+						this.distGraph.setDist(this.jackDist, "J");
+						this.distTable.setDist(this.jackDist, "J");
+						break;
+					case "others":
+						this.distGraph.setDist(this.otherDist, "O");
+						this.distTable.setDist(this.otherDist, "O");
+						break;
+					case "high":
+						this.distGraph.setDist(this.highDist, "V");
+						this.distTable.setDist(this.highDist, "V");
+						break;
+					case "spades":
+						this.distGraph.setDist(this.spadeDist, "S");
+						this.distTable.setDist(this.spadeDist, "S");
+						break;
+					case "hearts":
+						this.distGraph.setDist(this.heartDist, "H");
+						this.distTable.setDist(this.heartDist, "H");
+						break;
+					case "diamonds":
+						this.distGraph.setDist(this.diamondDist, "D");
+						this.distTable.setDist(this.diamondDist, "D");
+						break;
+					case "clubs":
+						this.distGraph.setDist(this.clubDist, "C");
+						this.distTable.setDist(this.clubDist, "C");
+						break;
+					case "voids":
+						this.distGraph.setDist(this.voidDist, "Z0");
+						this.distTable.setDist(this.voidDist, "Z0");
+						break;
+					case "singles":
+						this.distGraph.setDist(this.singleDist, "Z1");
+						this.distTable.setDist(this.singleDist, "Z1");
+						break;
+					case "doubles":
+						this.distGraph.setDist(this.aceDist, "Z2");
+						this.distTable.setDist(this.aceDist, "Z2");
+						break;
+					case "short":
+						this.distGraph.setDist(this.shortDist, "L0");
+						this.distTable.setDist(this.shortDist, "L0");
+						break;
+					case "long":
+						this.distGraph.setDist(this.longDist, "L1");
+						this.distTable.setDist(this.longDist, "L1");
+						break;
+					case "sparse":
+						this.distGraph.setDist(this.sparseDist, "W");
+						this.distTable.setDist(this.longDist, "W");
+						break;
+				}
+				this.distGraph.update();
+				this.distTable.update();
+			}
+			simulate() {
+				let data = this.hand.deal();
+				data.unshift(this.runCount);
+				this.dataTable.setCurrentData(data);
+				this.evaluateHand();
+				this.distGraph.update();
+				this.distTable.update();
+				super.simulate();
+			}
+			evaluateHand() {
+				let aces = 0, kings = 0, queens = 0, jacks = 0, others, high = 0;
+				let spades = 0, hearts = 0, diamonds = 0, clubs = 0, voids = 0, singles = 0, doubles = 0, short = 0, long = 0, sparse = 0;
+				for (let i = 0; i < 13; i++) {
+					if (this.hand.denomination[i] == 1) aces++;
+					else if (this.hand.denomination[i] == 13) kings++;
+					else if (this.hand.denomination[i] == 12) queens++;
+					else if (this.hand.denomination[i] == 11) jacks++;
+				}
+				others = 13 - aces - kings - queens - jacks;
+				high = 4 * aces + 3 * kings + 2 * queens + jacks;
+				for (let i = 0; i < 13; i++) {
+					if (this.hand.suit[i] == 1) clubs++;
+					else if (this.hand.suit[i] == 2) diamonds++;
+					else if (this.hand.suit[i] == 3) hearts++;
+					else if (this.hand.suit[i] == 4) spades++;
+				}
+				if (spades == 0) voids++; if (hearts == 0) voids++; if (diamonds == 0) voids++; if (clubs == 0) voids++;
+				if (spades == 1) singles++; if (hearts == 1) singles++; if (diamonds == 1) singles++; if (clubs == 1) singles++;
+				if (spades == 2) doubles++; if (hearts == 2) doubles++; if (diamonds == 2) doubles++; if (clubs == 2) doubles++;
+				sparse = 3 * voids + 2 * singles + doubles;
+				short = Math.min(spades, hearts, diamonds, clubs);
+				long = Math.max(spades, hearts, diamonds, clubs);
+				this.aceDist.setValue(aces);
+				this.kingDist.setValue(kings);
+				this.queenDist.setValue(queens);
+				this.jackDist.setValue(jacks);
+				this.otherDist.setValue(others);
+				this.highDist.setValue(high);
+				this.spadeDist.setValue(spades);
+				this.heartDist.setValue(hearts);
+				this.diamondDist.setValue(diamonds);
+				this.clubDist.setValue(clubs);
+				this.voidDist.setValue(voids);
+				this.singleDist.setValue(singles);
+				this.doubleDist.setValue(doubles);
+				this.shortDist.setValue(short);
+				this.longDist.setValue(long);
+				this.sparseDist.setValue(sparse)
+			}
+		}
+		const app = new BridgeApp("app");
+		window.resizeTo(1200, 600);
+        class HighCardDistribution extends Distribution {
+            constructor() {
+                super(0, 37, 1, DISC);
+				this.hands = [2310789600, 5006710800, 8611542576, 15636342960, 24419055136, 32933031040, 41619399184, 50979441968, 56466608128, 59413313872, 59723754816, 56799933520, 50971682080, 43906944752, 36153374224, 28090962724, 21024781756, 14997082848, 10192504020, 6579838440, 4086538404, 2399507844, 1333800036, 710603628, 354993864, 167819892, 74095248, 31157940, 11790760, 4236588, 1396068, 388196, 109156, 22360, 4484, 624, 60, 4];
+            }
+            density(x) {
+                return this.hands[x] / 635013559600;
+            }
+            mode() {
+                return 10;
+            }
+            mean() {
+                return 10;
+            }
+            variance() {
+                return 290 / 17;
+            }
+        }
+		class SparseDistribution extends Distribution {
+			constructor() {
+				super(0, 9, 1, DISC);
+				this.hands = [66905856160, 235386966672, 226028440924, 88900436196, 16055201448, 1664622960, 71802016, 231192, 2028, 4]
+			}
+			density(x) {
+				return this.hands[x] / 635013559600;
+			}
+			mode() {
+				return 1;
+			}
+		}
+		class ShortDistribution extends Distribution {
+			constructor() {
+				super(0, 3, 1, DISC);
+				this.hands = [32427298180, 194023212812, 341657192448, 66905856160];
+			}
+			density(x) {
+				return this.hands[x] / 635013559600;
+			}
+			mode() {
+				return 2;
+			}
+		}
+		class LongDistribution extends Distribution {
+			constructor() {
+				super(4, 13, 1, DISC);
+				this.hands = [222766089260, 281562853572, 105080049360, 22394644272, 2963997036, 235237860, 10455016, 231192, 2028, 4];
+			}
+			density(x) {
+				return this.hands[x - 4] / 635013559600;
+			}
+			mode() {
+				return 5;
+			}
+		}
+		class VoidDistribution extends Distribution {
+			constructor() {
+				super(0, 3, 1, DISC);
+				this.hands = [602586261420, 32364894588, 62403588, 4];
+			}
+			density(x) {
+				return this.hands[x] / 635013559600;
+			}
+			mode() {
+				return 0;
+			}
+		}
+		class SingleDistribution extends Distribution {
+			constructor() {
+				super(0, 3, 1, DISC);
+				this.hands = [439483905800, 187700354296, 7826786136, 2513368];
+			}
+			density(x) {
+				return this.hands[x] / 635013559600;
+			}
+			mode() {
+				return 0;
+			}
+		}
+		class DoubleDistribution extends Distribution {
+			constructor() {
+				super(0, 3, 1, DISC);
+				this.hands = [222885322144, 304584314112, 104286598416, 3257324928];
+			}
+			density(x) {
+				return this.hands[x] / 635013559600;
+			}
+			mode() {
+				return 1;
+			}
+		}
+	</script>
+</head>
+
+<body class="ancillary" onload="app.initialize();">
+
+<div class="latex">
+	\(\newcommand{\bs}{\boldsymbol}\)
+</div>
+
+<header>
+	<h3 class="ancillary">Bridge Experiment</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>The experiment is to deal a bridge hand (13 cards) at random from a standard deck of 52 cards. Random variable \(X_i\) gives the denomination and suit of card \(i \in \{1, 2, \ldots, 13]}). Other random variables of interest are:</p>
+
+<ol class="sub">
+	<li>The number of aces \(A\)</li>
+	<li>The number of kings \(K\)</li>
+	<li>The number of queens \(Q\)</li>
+	<li>The number of jacks \(J\)</li>
+	<li>The number of non-honor cards \(N\)</li>
+	<li>The honor card point value \(V = 4 A + 3 K + 2 Q + J\)</li>
+	<li>The numnber of spades \(S\)</li>
+	<li>The number of hearts \(H\)</li>
+	<li>The number of diamonds \(D\)</li>
+	<li>The number of clubs \(C\)</li>
+	<li>The number of voids \(Z_0 = \bs{1}(S = 0) + \bs{1}(H = 0) + \bs{1}(D = 0) + \bs{1}(C = 0)\)</li>
+	<li>The number of singletons \(Z_1 = \bs{1}(S = 1) + \bs{1}(H = 1) + \bs{1}(D = 1) + \bs{1}(C = 1)\)</li>
+	<li>The number of doubletons \(Z_2 = \bs{1}(S = 2) + \bs{1}(H = 2) + \bs{1}(D = 2) + \bs{1}(C = 2)\)</li>
+	<li>The number of cards in the shortest suit \(L_0 = \min\{S, H, D, C\}\)</li>
+	<li>The number of cards in the longest suit \(L_1 = \max\{S, H, D, C\}\)</li>
+	<li>The sparse suit point value \(W = 3 Z_0 + 2 Z_1 + Z_2\)</li>
+</ol>	
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="sister">Bridge Experiment</li>
+		<li class="child">Card images created by <a href="https://www.me.uk/cards" class="external" target="external">Adrian Kennard</a></li>
+	</ol>
+</footer>
+
+</body>
+</html>

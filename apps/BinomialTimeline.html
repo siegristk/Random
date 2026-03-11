@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="utf-8">
+	<title>Binomial Timeline Experiment</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, simulation, Bernoulli trials, binomial distribution">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Binomial timeline experiment
+		"use strict";
+		class BinomialTimelineApp extends SimApp {
+			constructor(name, n, p) {
+				super(name);
+				this.n = n;
+				this.p = p;
+				this.N = 50;
+			}
+			initialize() {
+				super.initialize();
+				//Data table
+				this.dataTable = new DataTable(this.tables, 300, 100);
+				this.dataTable.setHeader(["Run", "Y", "M"]);
+				//Parameters
+				const parameters = this.addToolbar();
+				this.nParam = new Parameter(parameters, "<var>n</var>", "Number of trials");
+				this.nParam.setProperties(1, this.N, 1, this.n);
+				this.nParam.setMethod(this.name, "reset()");
+				this.pParam = new Parameter(parameters, "<var>p</var>", "Probability of success");
+				this.pParam.setProperties(0, 1, 0.01, this.p);
+				this.pParam.setMethod(this.name, "reset()");
+				//Random variable select
+				this.rvSelect = new Select(parameters, "Random variable");
+				this.rvSelect.setOptions(["Y", "M"], ["Y: number of successes", "M: proportion of successes"], 0);
+				this.rvSelect.setMethod(this.name, "setDist()");
+				//Timeline
+				this.timeline = new Timeline(this.graphs, 700, "Timeline");
+				this.distGraph = new DistGraph(this.graphs, 400, 200);
+				this.distTable = new DistTable(this.tables, 300, 100);
+				this.reset();
+			}
+			reset() {
+				this.n = this.nParam.getValue();
+				this.p = this.pParam.getValue();
+				this.timeline.setParameters(1, this.n, 1);
+				this.binomialDist = new BinomialDistribution(this.n, this.p);
+				this.scaleDist = new LocationScaleDistribution(this.binomialDist, 0, 1 / this.n);
+				this.setDist();
+				super.reset();
+			}
+			setDist() {
+				if (this.rvSelect.getValue() == "Y") {
+					this.distGraph.setDist(this.binomialDist, "Y");
+					this.distTable.setDist(this.binomialDist, "Y");
+				}
+				else {
+					this.distGraph.setDist(this.scaleDist, "M");
+					this.distTable.setDist(this.scaleDist, "M");
+				}
+				this.distGraph.update();
+				this.distTable.update();
+			}
+			simulate() {
+				let y = 0, m = 0, n = this.n, p = this.p;
+				this.timeline.reset();
+				for (let i = 1; i <= n; i++) {
+					if (Math.random() < p) {
+						y ++;
+						this.timeline.addPoint(i, "red");
+					}
+					else this.timeline.addPoint(i, "green");
+				}
+				m = y / this.n;
+				this.binomialDist.setValue(y);
+				this.scaleDist.setValue(m);
+				this.distGraph.update();
+				this.distTable.update();
+				this.dataTable.setCurrentData([this.runCount, y, m.toFixed(2)]);
+				super.simulate();
+			}
+		}
+		const app = new BinomialTimelineApp("app", 10, 0.5);
+		window.resizeTo(800, 600);
+	</script>
+</head>
+
+<body onload="app.initialize();" class="ancillary">
+
+<header>
+	<h3 class="ancillary">Binomial Timeline Experiment</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>The random experiment consists of performing \(n\) Bernoulli trials, each with probability of success \(p\). The successes are recorded as red dots and the failures as green dots on a timeline marked from 1 to \(n\). Random variable \(Y\) denotes the number of successes and has the binomial distribution with parameters \(n\) and \(p\). Random variable \(M = Y / n\) denotes the proportion of successes and has a scaled version of the binomial distribution. These variables are recorded in the data table, and the distribution of the selected variable is described in the distribution graph and table. The parameters \(n\) and \(p\) can be varied with scrollbars.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Binomial Timeline Experiment</li>
+	</ol>
+</footer>
+
+</body>
+</html>

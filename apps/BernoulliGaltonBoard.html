@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Bernoulli Galton Board Experiment</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, simulation, Bernoulli trials, Galton board">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Galton Board Experiment
+		"use strict";
+		class GaltonBoardApp extends SimApp {
+			constructor(name, n, p) {
+				super(name)
+				this.n = n;
+				this.p = p;
+			}
+			initialize() {
+				super.initialize();
+				//Data table
+				this.dataTable = new DataTable(this.tables, 600, 100);
+				this.dataTable.setHeader(["Run", "X", "A"]);
+				//Parameters
+				const parameters = document.createElement("div");
+				parameters.class = "toolbar";
+				this.toolbars.appendChild(parameters);
+				this.nParam = new Parameter(parameters, "<var>n</var>", "Number of trials");
+				this.nParam.setProperties(1, 50, 1, this.n);
+				this.nParam.setMethod(this.name, "reset()");
+				this.pParam = new Parameter(parameters, "<var>p</var>", "Probability of success");
+				this.pParam.setProperties(0, 1, 0.01, this.p);
+				this.pParam.setMethod(this.name, "reset()");
+				//Graphs
+				this.galtonBoard = new GaltonBoard(this.graphs, 600, 300);
+				this.reset();
+			}
+			reset() {
+				this.n = this.nParam.getValue();
+				this.p = this.pParam.getValue();
+				this.galtonBoard.setRows(this.n);
+				super.reset();
+			}
+			simulate() {
+				this.galtonBoard.reset();
+				let bits = [], set = [], setText = "";
+				for (let i = 0; i < this.n; i++) {
+					if (Math.random() < this.p) {
+						bits[i] = 1;
+						set.push(i + 1);
+					}
+					else bits[i] = 0;
+				}
+				this.galtonBoard.setPath(bits);
+				if (set.length === 0) setText = "\u2205";
+				else setText = "{" + set + "}";
+				this.dataTable.setCurrentData([this.runCount,  "(" + bits + ")",  setText]);
+				super.simulate();
+			}
+		}
+		const app = new GaltonBoardApp("app", 10, 0.5);
+		window.resizeTo(700, 800);
+	</script>
+</head>
+
+<body class="ancillary" onload="app.initialize();">
+
+<header>
+	<h3 class="ancillary">Bernoulli Galton Board Experiment</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>The Galton board experiment consists of performing \(n\) Bernoulli trials with probability of success \(p\). The trial outcome are represented graphically as a path in the Galton board: success corresponds to a bounce to the right and failure to a bounce to the left. Random vector \(\boldsymbol{X} = (X_1, X_2, \ldots, X_n)\) gives the outcomes of the trials and \(A\) denotes the corresponding random subset \(\{1, 2, \ldots, n\}\). Recall that \(i \in A\) if and only if \(X_i = 1\), corresponding to a bounce to the right in row \(i\) of the Galton board. The variables \(\boldsymbol{X}\) and \(A\) are recorded in the data table on each run. The parameters \(n\) and \(p\) can be varied with scrollbars.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Bernoulli Galton Board Experiment</li>
+	</ol>
+</footer>
+
+</body>
+</html>

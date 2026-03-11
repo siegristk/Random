@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Brownian Bridge</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, simulation, Brownian motion, Brownian bridge, normal distribution">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+	//Brownian Bridge Process
+		"use strict";
+		class BrownianBridgeApp extends SimApp {
+			constructor(name, t) {
+				super(name);
+				this.t = t;
+			}
+            initialize() {
+				super.initialize();
+				//Data table
+				this.dataTable = new DataTable(this.tables, 400, 125);
+                this.dataTable.setHeader(["Run", "Y"]);
+				//Parameters
+				this.tParam = new Parameter(this.toolbar, "<var>t</var>", "Time");
+				this.tParam.setProperties(0.1, 0.9, 0.01, this.t);
+                this.tParam.setMethod(this.name, "reset()");
+                //Path graph
+				this.pathGraph = new Canvas(this.graphs, 400, 250, "Path");
+				this.pathGraph.lm = 30;
+                this.path = this.pathGraph.makePath();
+				this.zeroDot = this.pathGraph.makeDot(0, 0, 1, "none");
+                this.tDot = this.pathGraph.makeDot(0, 0, 1, "none");
+				this.oneDot = this.pathGraph.makeDot(1, 0, 1, "none");
+				this.line = this.pathGraph.makeLine(0, 0, 1, 1, "none");
+                //Distribution 
+				this.distGraph = new DistGraph(this.graphs, 400, 250);
+				this.distTable = new DistTable(this.tables, 400, 125);
+                this.reset();
+            }
+            reset() {
+                this.t = this.tParam.getValue();
+                //Distributions
+                let t = this.t;
+				this.dxDist = new NormalDistribution(0, Math.sqrt(1 / 200));
+				this.yDist = new NormalDistribution(0, Math.sqrt(t * (1 - t)));
+				this.distGraph.setDist(this.yDist, "Y");
+				this.distTable.setDist(this.yDist, "Y");
+				//Path
+				let yMax = this.yDist.max;
+                this.pathGraph.reset(7);
+                this.pathGraph.draw(this.path, "");
+                this.pathGraph.clearDot(this.tDot);
+				this.pathGraph.clearDot(this.zeroDot);
+				this.pathGraph.clearDot(this.oneDot);
+                this.pathGraph.setBounds(0, 1, -yMax, yMax);
+                this.pathGraph.makeAxis(0, 0, 1 / 20, HOR);
+                this.pathGraph.makeText("0", 0, 0, BELOW);
+                this.pathGraph.makeText("1", 1, 0, BELOW);
+                this.pathGraph.makeAxis(0, -yMax, yMax / 10, VERT);
+                this.pathGraph.makeText((-yMax).toFixed(1), 0, -yMax, LEFT);
+                this.pathGraph.makeText(yMax.toFixed(1), 0, yMax, LEFT);
+				this.pathGraph.setLine(this.line, t, -yMax, t, yMax, "blue");
+                super.reset();
+            }
+            simulate() {
+				let t = this.t, s = 0, x = [], y = 0, n = 200, ds = 1 / n, d = "";
+				x[0] = 0;
+				d = this.pathGraph.moveTo(d, s, x[0]);
+				for (let i = 1; i < n; i++)	x[i] = x[i - 1] + this.dxDist.simulate();
+				for (let i = 1; i <= n; i++) {
+					s = s + ds;
+					y = x[i - 1] - s * x[n - 1];
+					d = this.pathGraph.lineTo(d, s, y);
+				}
+				let k = Math.round(t * n), yt = x[k - 1] - t * x[n - 1];
+                this.pathGraph.draw(this.path, d, "red", "none");
+				this.pathGraph.setDot(this.zeroDot, 0, 0, 4, "red");
+				this.pathGraph.setDot(this.tDot, t, yt, 4, "red");
+				this.pathGraph.setDot(this.oneDot, 1, 0, 4, "red");
+                this.yDist.setValue(yt);
+                this.distGraph.update();
+                this.distTable.update();
+                this.dataTable.setCurrentData([this.runCount, y.toFixed(2)]);
+                super.simulate();
+            }
+		}
+		const app = new BrownianBridgeApp("app", 0.5);
+        window.resizeTo(900, 600);
+	</script>
+</head>
+
+<body class="ancillary" onload="app.initialize();">
+
+<header>
+	<h3 class="ancillary">Brownian Bridge</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>The experiment consists of running the Brownian bridge process \( \boldsymbol{Y} = \{Y_t: t \in [0, 1] \} \), which is obtained from the standard Brownian motion process \( \boldsymbol{X} = \{X_t: t \in [0, 1]\} \) by conditioning on the event \( X(1) = 0 \). On each run, the path is shown in the top graph.  The random variable of interest is the position \( Y_t \) at time \( t \in [0, 1] \), which has the normal distribution with mean 0 and standard deviation \( \sqrt{t (1 - t)} \).</p>
+
+<p>On each run, the value of the variable is recorded in the data table, and the point \( (t, Y_t) \) is shown as a red dot in the path graph. The probability density function and moments, and the empirical density function and moments of \(Y_t\), are shown in the distribution graph amd in the distribution table.  The parameter \( t \) can be varied with the input control.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">The Brownian Bridge</li>
+	</ol>
+</footer>
+
+</body>
+</html>

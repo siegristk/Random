@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Ballot Experiment</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, simulation, ballot problem, random walk">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Ballot Experiment
+		"use strict";
+		class BallotApp extends SimApp {
+			constructor(name, a, b) {
+				super(name);
+				this.a = a;
+				this.b = b;
+			}
+			initialize() {
+				super.initialize();
+				//Data table
+				this.dataTable = new DataTable(this.tables, 300, 125);
+				this.dataTable.setHeader(["Run", "I"]);
+				//Parameter
+				this.aParam = new Parameter(this.toolbar, "<var>a</var>", "A votes");
+				this.aParam.setProperties(10, 50, 1, this.a);
+				this.aParam.setMethod(this.name, "reset()");
+				this.bParam = new Parameter(this.toolbar, "<var>b</var>", "B votes");
+				this.bParam.setProperties(1, this.a - 1, 1, this.b);
+				this.bParam.setMethod(this.name, "reset()");
+                //Walk graph
+				this.voteGraph = new Canvas(this.graphs, 400, 300, "Vote count");
+                this.path = this.voteGraph.makePath();
+				this.initialDot = this.voteGraph.makeDot(0, 0, 1, "none");
+                this.finalDot = this.voteGraph.makeDot(0, 0, 1, "none");
+                //Distribution 
+				this.distGraph = new DistGraph(this.graphs, 200, 200);
+				this.distTable = new DistTable(this.tables, 300, 125);
+                this.reset();
+			}
+			reset() {
+				//Parameters
+				this.a = this.aParam.getValue();
+				this.b = this.bParam.getValue();
+				if (this.b >= this.a) {
+					this.bParam.setProperties(1, this.a - 1, 1, this.a - 1);
+					this.b = this.a - 1;
+				}
+				else this.bParam.setProperties(1, this.a - 1, 1, this.b);
+				let a = this.a, b = this.b;
+				//Vote graph
+				this.voteGraph.draw(this.path, "");
+				this.voteGraph.reset(5);
+				this.voteGraph.setBounds(0, a + b, -b, a);
+				this.voteGraph.makeAxis(0, 0, 1, HOR);
+				this.voteGraph.makeText("0", 0, 0, LEFT);
+				this.voteGraph.makeText((a + b).toFixed(0), a + b, 0, BELOW);
+				this.voteGraph.makeAxis(0, -b, 1, VERT);
+				this.voteGraph.makeText((-b).toFixed(0), 0, - b, LEFT);
+				this.voteGraph.makeText(a.toFixed(0), 0, a, LEFT);
+				this.voteGraph.setDot(this.initialDot, 0, 0, 4, "blue");
+				this.voteGraph.setDot(this.finalDot, a + b, a - b, 4, "blue");
+				//Distribution
+				let p = (this.a - this. b) / (this.a + this.b);
+				this.dist = new BernoulliDistribution(p);
+				this.distGraph.setDist(this.dist, "I");
+                this.distTable.setDist(this.dist, "I");
+				this.distGraph.update();
+				this.distTable.update();
+				super.reset();
+			}
+			simulate() {
+				let vote = 0, y = 0, aLeft = this.a, bLeft = this.b, d = "", ballotEvent = 1;
+				d = this.voteGraph.moveTo(d, 0, 0);
+				for (let i = 1; i <= this.a + this.b; i++){
+					if (Math.random() < aLeft / (aLeft + bLeft)){
+						vote = 1;
+						aLeft = aLeft - 1;
+					}
+					else {
+						vote = -1;
+						bLeft = bLeft - 1;
+					}
+					y += vote;
+					d = this.voteGraph.lineTo(d, i, y);
+					if (y <= 0) ballotEvent = 0;
+				}
+				this.voteGraph.draw(this.path, d, "red", "none");
+                this.dist.setValue(ballotEvent);
+                this.distGraph.update();
+                this.distTable.update();
+                this.dataTable.setCurrentData([this.runCount, ballotEvent]);
+				super.simulate();
+			}
+		}
+		const app = new BallotApp("app", 20, 10);
+		window.resizeTo(700, 600);
+	</script>
+</head>
+
+<body class="ancillary" onload="app.initialize();">
+
+<header>
+	<h3 class="ancillary">Ballot Experiment</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>The ballot experiment concerns an election in which candidate \(A\) receives \(a\) votes and candidate \(B\) receives \(b\) votes, where \(a \gt b\). The votes are assumed to be randomly ordered. The first graph shows the difference between the number of votes for \(A\) and the number of votes for \(B\), as the votes are counted. This process is a random walk in which the initial point \((0, 0)\) and terminal point (\(a + b, a - b)\) are fixed.</p>
+
+<p>The event of interest is that \(A\) is always ahead of \(B\) in the vote count, or equivalently, that the graph is always above the horizontal axis (except of course at the origin). Random variable \(I\) is the indicator variable of this event and is recorded in the data table. The distribution of \(I\) is described in the distribution graph and table. The parameters \(a\) and \(b\) can be varied with the input controls.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Ballot Experiment</li>
+	</ol>
+</footer>
+
+</body>
+</html>

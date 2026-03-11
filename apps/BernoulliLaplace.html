@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Bernoulli-Laplace Chain</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, Markov Chain, Bernoulli-Laplace chain, Markov chain, hypergeometric distribution">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Bernoulli-Laplace Experiment
+		"use strict";
+		class BernoulliLaplaceApp extends SimApp {
+			constructor(name, j, k, r, x0) {
+				super(name);
+				this.j = j;
+				this.k = k;
+				this.r = r;
+				this.x0 = x0;
+			}
+            initialize() {
+				super.initialize();
+				//Data table
+				this.dataTable = new DataTable(this.tables, 300, 100);
+				this.dataTable.setHeader(["Time", "X"]);
+				//Parameters
+				const parameters = this.addToolbar();
+				this.jParam = new Parameter(parameters, "<var>j</var>", "Urn 0 balls");
+				this.jParam.setProperties(1, 100, 1, this.j);
+				this.jParam.setMethod(this.name, "reset()");
+				this.kParam = new Parameter(parameters, "<var>j</var>", "Urn 1 balls");
+				this.kParam.setProperties(1, 100, 1, this.k);
+				this.kParam.setMethod(this.name, "reset()");
+				this.rParam = new Parameter(parameters, "<var>r</var>", "Red balls");
+				this.rParam.setProperties(1, this.j + this.k, 1, this.r);
+				this.rParam.setMethod(this.name, "reset()");
+				this.x0Param = new Parameter(parameters, "<var>x</var><sub>0</sub>", "Initial state");
+				this.x0Param.setProperties(0, this.k, 1, this.x0);
+				this.x0Param.setMethod(this.name, "reset()");
+				//Timeline
+				this.stateSpace = new Timeline(this.graphs, 600, "State space");
+				this.stateSpace.lm = 30;
+				//Distribution graph and table
+				this.distGraph = new DistGraph(this.graphs, 600, 200);
+				this.distTable = new DistTable(this.tables, 300, 100);
+				this.reset();
+			}
+            reset() {
+				//Parameters
+				this.j = this.jParam.getValue();
+				this.k = this.kParam.getValue()
+                let j = this.j, k = this.k, r = this.rParam.getValue(), x0 = this.x0Param.getValue();
+				this.rParam.setProperties(1, j + k, 1, Math.min(r, j + k));
+				this.x0Param.setProperties(Math.max(0, r - j), Math.min(k, r), 1, Math.min(x0, k, r));
+				this.r = this.rParam.getValue();
+                this.x0 = this.x0Param.getValue();
+				this.x = this.x0;
+				//Distribution
+                this.limitDist = new HypergeometricDistribution(j + k, r, k);
+                this.distGraph.setDist(this.limitDist, "X");
+                this.distTable.setDist(this.limitDist, "X");
+				//State space
+				this.stateSpace.setParameters(Math.max(0, r - j), Math.min(r, k), 1);
+                this.x0Dot = this.stateSpace.addPoint(this.x0, "blue");
+                this.xDot = this.stateSpace.addPoint(this.x, "none");
+                super.reset();
+            }
+            simulate() {
+                let j = this.j, k = this.k, r = this.r, x = this.x;
+				let p1 = (j - r + x) * x / (j * k);
+				let p2 = (x * (r - x) + (j - r + x) * (k - x)) / (j * k);
+				let p = Math.random();
+				if (p <= p1) x--; else if (p > p1 + p2) x++;
+                this.x = x;
+                this.stateSpace.changePoint(this.xDot, x, "red");
+                this.limitDist.setValue(x);
+                this.distGraph.update();
+                this.distTable.update();
+                this.dataTable.setCurrentData([this.runCount, x]);
+                super.simulate();
+            }
+		}
+		const app = new BernoulliLaplaceApp("app", 10, 10, 10, 0);
+		window.resizeTo(800, 600);
+	</script>
+</head>
+
+<body class="ancillary" onload="app.initialize();">
+
+<header>
+	<h3 class="ancillary">Bernoulli-Laplace Chain</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>The <dfn>Bernoulli-Laplace experiment</dfn> models a simple diffusion process as a Markov chain. Suppose that we have two urns: urn 0 contains \(j\) balls and urn 1 contains \(k\) balls.  Of the \(j + k\) balls, \(r\) are red, where \(0 \le r \le j + k\). At each discrete time unit, a ball is selected at random from each urn, and the balls are switched to the opposite urns.  The state of the system at any time is the number of red balls in urn 1. This forms a Markov chain with transition matrix \(P\) given by
+\begin{align}
+	P(x, x - 1) &amp; = \frac{(j - r + x) x}{j k} \\
+	P(x, x) &amp; = \frac{(r - x) x + (j - r + x) (j - x)}{j k}  \\
+	P(x, x + 1) &amp; = \frac{(j - x) (k - x)}{j k}
+\end{align}
+for \(x\) in the state space \(S = \{\max\{0, r - j\}, \ldots, \min\{k, r\}\}\)</p>
+
+<p>The top graph shows the state space with the current state colored red and the initial state colored blue. As the process runs, the chain moves from state to state. The time and the sate are recorded at each update in the record table. The limiting distribution and the proportion of time that the chain is in each state are shown in the distribution graph and distribution table. The limiting distribution is hypergeometric with parameters \(j + k\), \(r\) and \(k\).</p>
+
+<p>The parameters \(j\), \(k\), \(r\) and the initial state \(x_0\) can be varied with the input controls.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Bernoulli-Laplace Chain</li>
+	</ol>
+</footer>
+
+</body>
+</html>

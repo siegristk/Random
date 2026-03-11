@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Two-Dimensional Brownian Motion</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, simulation, two-dimensional Brownian motion, normal distribution">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Two-Dimensional Brownian Motion Experiment
+		"use strict";
+		class BrownianMotion2D extends SimApp {
+			constructor(name) {
+				super(name);
+			}
+			initialize() {
+				super.initialize();
+				//Parameter
+				this.tParam = new Parameter(this.toolbar, "<var>t</var>", "Time");
+				this.tParam.setProperties(1, 10, 0.1, 1);
+				this.tParam.setMethod(this.name, "reset()");
+				//Distribution graphs
+				this.xyGraph = new Canvas(this.graphs, 300, 300, "Sample path");
+				this.xyPath = this.xyGraph.makePath();
+				this.xyDot = this.xyGraph.makeDot();
+				this.xGraph = new DistGraph(this.graphs, 200, 200);
+				this.yGraph = new DistGraph(this.graphs, 200, 200);
+				//Tables
+				this.dataTable = new DataTable(this.tables, 300, 125);
+				this.dataTable.setHeader(["Run", "X", "Y"]);
+				this.xTable = new DistTable(this.tables, 200, 125);
+				this.yTable = new DistTable(this.tables, 200, 125);
+				this.reset();
+			}
+			reset() {
+				let t = this.tParam.getValue(), ds = t / 200;
+				//Path graph
+				let max = 3 * Math.sqrt(t);
+				this.xyGraph.setBounds(-max, max, -max, max);
+				this.xyGraph.makeAxis(-max, 0, max / 10, HOR);
+				this.xyGraph.makeText((-max).toFixed(1), -max, 0, BELOW);
+				this.xyGraph.makeText(max.toFixed(1), max, 0, BELOW);
+				this.xyGraph.makeAxis(0, -max, max / 10, VERT);
+				this.xyGraph.makeText((-max).toFixed(1), 0, -max, LEFT);
+				this.xyGraph.makeText(max.toFixed(1), 0, max, LEFT);
+				this.xyGraph.draw(this.xyPath, "");
+				this.xyGraph.clearDot(this.xyDot);
+				//Distributions
+				this.dDist = new NormalDistribution(0, Math.sqrt(ds));
+				this.xDist = new NormalDistribution(0, Math.sqrt(t));
+				this.yDist = new NormalDistribution(0, Math.sqrt(t));
+				this.xGraph.setDist(this.xDist, "X");
+				this.yGraph.setDist(this.yDist, "Y");
+				this.xTable.setDist(this.xDist, "X");
+				this.yTable.setDist(this.yDist, "Y");
+				super.reset();
+			}
+			simulate() {
+				let t = this.tParam.getValue();
+				//Draw path
+				let x = 0, y = 0, s = 0, ds = t / 200, dx = 0, dy = 0, d = "";
+				d = this.xyGraph.moveTo(d, x, y);
+				for (let i = 1; i <= 200; i++) {
+					s += ds;
+					dx = this.dDist.simulate();
+					dy = this.dDist.simulate();
+					x += dx;
+					y += dy;
+					d = this.xyGraph.lineTo(d, x, y);
+				}
+				this.xyGraph.draw(this.xyPath, d, "green", "none");
+				this.xyGraph.setDot(this.xyDot, x, y, 4, "red");
+				//Update distributions
+				this.xDist.setValue(x),
+				this.yDist.setValue(y),
+				this.xGraph.update();
+				this.yGraph.update();
+				this.xTable.update();
+				this.yTable.update();
+				//Record variables
+				this.dataTable.setCurrentData([this.runCount, x.toFixed(2), y.toFixed(2)]);
+				super.simulate();
+			}
+		}
+		const app = new BrownianMotion2D("app");
+        window.resizeTo(800, 600);
+	</script>
+</head>
+
+<body class="ancillary" onload="app.initialize();">
+
+<header>
+	<h3 class="ancillary">Two-Dimensional Brownian Motion</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>The experiment consists of running a two-dimensional Brownian motion process \( \{(X_s, Y_s): 0 \le s \le t\} \) on the interval \( [0, t] \). Thus, \( \{X_s: s \in [0, \infty)\} \) and \( \{Y_s: s \in [0, \infty)\} \) are independent standard Brownian motions. On each run, the sample path is shown in the first graph in green, with the final position \((X_t, Y_t)\) as a red dot. The values of \(X_t\) and \(Y_t\) are recorded in the data table. The probability density functions and moments, and the empirical density functions and moments of \(X_t\) and \(Y_t\), are shown in the two distribution graphs and given in the two distribution tables. The time parameter \( t \) can be varied with the input control.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Two-Dimensional Brownian Motion</li>
+	</ol>
+</footer>
+
+</body>
+</html>

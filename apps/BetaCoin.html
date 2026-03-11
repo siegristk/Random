@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="utf-8">
+	<title>Beta Coin Experiment</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, Bayes' theorem, beta distribution, coin tossing">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Beta Coin Experiment
+		"use strict";
+		class BetaCoinApp extends SimApp {
+			constructor(name, n, p, a, b) {
+				super(name);
+				this.n = n;
+				this.p = p;
+				this.a = a;
+				this.b = b;
+				this.N = 50;
+			}
+			initialize() {
+				super.initialize();
+				//Data table
+				this.dataTable = new DataTable(this.tables, 300, 100);
+				this.dataTable.setHeader(["Run", "Y", "U1"]);
+				//Parameters 
+				const parameters = this.addToolbar();
+				this.nParam = new Parameter(parameters, "<var>n</var>", "Number of coins");
+				this.nParam.setProperties(1, this.N, 1, this.n);
+				this.nParam.setMethod(this.name, "reset()");
+				this.pParam = new Parameter(parameters, "<var>p</var>", "Probability of heads");
+				this.pParam.setProperties(0, 1, 0.01, this.p);
+				this.pParam.setMethod(this.name, "reset()");
+				this.aParam = new Parameter(parameters, "<var>a</var>", "Left beta parameter");
+				this.aParam.setProperties(1, 10, 1, this.a);
+				this.aParam.setMethod(this.name, "reset()");
+				this.bParam = new Parameter(parameters, "<var>b</var>", "Right beta parameter");
+				this.bParam.setProperties(1, 10, 1, this.a);
+				this.bParam.setMethod(this.name, "reset()");
+				//Coins
+				this.coinBox = new CoinBox(this.graphs);
+				//Distribution grapha and tablea
+				this.priorGraph = new DistGraph(this.graphs, 400, 200);
+				this.priorGraph.distC = "rgb(0, 127, 0)";
+				this.postGraph = new DistGraph(this.graphs, 400, 200);
+				this.postGraph.distC = "red";
+				this.priorTable = new Table(this.tables, 150, 100, "U0 Table");
+				this.postTable = new Table(this.tables, 200, 100, "U1 Table");
+				this.postTable.setHeader(["U1", "Dist", "Data"]);
+				this.reset();
+			}
+			reset() {
+				//Parameters
+				this.n = this.nParam.getValue();
+				this.p = this.pParam.getValue();
+				this.a = this.aParam.getValue();
+				this.b = this.bParam.getValue();
+				let n = this.n, p = this.p, a = this.a, b = this.b;
+				//Reset coins
+				this.coinBox.setCoins(this.n);
+				//Prior distribution
+				let priorDist = new BetaDistribution(a, b);
+				this.priorGraph.setDist(priorDist, "P0");
+				this.priorGraph.makeDot(p, 0, 4, "blue");
+				let priorBias = a / (a + b) - p;
+				let priorMSE = priorBias ** 2;
+				this.priorTable.setHeader(["U0 = " + (a / (a + b)).toFixed(2)]);
+				this.priorTable.addData(["Bias", priorBias.toFixed(2)]);
+				this.priorTable.addData(["MSE", priorMSE.toFixed(2)]);
+				//Posterior distributioon
+				this.postGraph.reset(1);
+				this.postBias = (a * (1 - p) - b * p) / (a + b + n);
+				this.postMSE = (p * (n - 2 * a * (a + b)) + (p ** 2) * ((a + b) ** 2 - n) + a ** 2) / ((a + b + n) ** 2);
+				this.postTable.reset();
+				this.postTable.addData(["Bias", this.postBias.toFixed(3)]);
+				this.postTable.addData(["MSE", this.postMSE.toFixed(3)]);
+				this.error = 0;
+				this.error2 = 0;
+				super.reset();
+			}
+			simulate() {
+				let n = this.n, a = this.a, b = this.b, p = this.p, k = this.runCount;
+				let y = this.coinBox.tossCoins(p);
+				let postDist = new BetaDistribution(a + y, b + n - y);
+				this.postGraph.setDist(postDist, "P1");
+				this.postGraph.makeDot(p, 0, 4, "blue");
+				let u1 = (a + y) / (a + b + n);
+				this.error += u1 - p;
+				this.error2 += (u1 - p) ** 2;
+				this.postTable.reset();
+				this.postTable.addData(["Bias", this.postBias.toFixed(3), (this.error / k).toFixed(3)]);
+				this.postTable.addData(["MSE", this.postMSE.toFixed(3), (this.error2 / k).toFixed(3)]);
+				this.dataTable.setCurrentData([k, y, u1.toFixed(2)]);
+				super.simulate();
+			}
+		}
+		const app = new BetaCoinApp("app", 10, 0.5, 1, 1);
+		window.resizeTo(900, 600);
+	</script>
+</head>
+
+<body class="ancillary" onload="app.initialize();">
+
+<div class="latex">
+	\(\newcommand{\E}{\mathbb{E}}\) 
+</div>
+
+<header>
+	<h3 class="ancillary">Beta Coin Experiment</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>The random experiment is to toss a coin \(n\) times, where the probability of heads is \(p\). Initially, \(p\) is modeled by random variable \(P_0\) which has a prior beta distribution with left parameter \(a\) and right parameter \(b\). The density function of \(P_0\) is shown in the graph on the left. The prior point estimate of \(p\) is 
+\[U_0 = \E(P_0) = \frac{a} {a + b}\]
+Random variable \(Y\) is the number of heads, and then \(p\) is modeled by random variable \(P_1\) which has the posterior beta probability density function with left parameter \(a + Y\) and right parameter \(b + n - Y\). The density function of \(P_1\), is shown in the graph on the right. On both graphs, the true value of \(p\) is shown as a blue dot on the horizontal axis. The Bayesian estimate of \(p\)
+\[U_1 = \E(P_1) = \frac{a + Y}{a + b + n}\]
+The parameters \(n\), \(p\), \(a\), and \(b\) can be varied with input controls.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Beta Coin Experiment</li>
+	</ol>
+</footer>
+
+</body>
+</html>

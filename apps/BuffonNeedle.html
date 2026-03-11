@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Buffon's Needle Experiment</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, simulation, Buffon's needle problem, pi estimate, uniform distribution, geometric probability">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Buffon's needle experiment
+		"use strict";
+		class BuffonNeedleApp extends SimApp {
+			constructor(name, l) {
+				super(name);
+				this.l = l;
+			}
+			initialize() {
+				super.initialize();
+				//Data table
+				this.dataTable = new DataTable(this.tables, 300, 125);
+				this.dataTable.setHeader(["Run", "X", "Y", "I"]);
+				//Parameter
+				this.lParam = new Parameter(this.toolbar, "<var>L</var>", "Length");
+				this.lParam.setProperties(0, 1, 0.01, this.l);
+				this.lParam.setMethod(this.name, "reset()");
+				//Floor
+				this.floor = new Canvas(this.graphs, 200, 200, "Buffon's floor");
+				this.floor.setBounds(-1, 1, -0.5, 1.5);
+				this.floor.setMargins(0, 0, 0, 0);
+				this.floor.setBackground("yellow");
+				this.floor.makeLine(-1, 0, 1, 0, "black");
+				this.floor.makeLine(-1, 1, 1, 1, "black");
+				this.needle = this.floor.makeLine();
+				//Scatterplot
+				this.scatter = new Canvas(this.graphs, 200, 200, "Scatter plot");
+				this.scatter.setBounds(0, Math.PI, 0, 1);
+				this.scatter.setMargins(20, 20, 20, 20);
+				this.scatter.makeAxis(0, 0, 0.5, HOR);
+				this.scatter.makeText("0", 0, 0, BELOW);
+				this.scatter.makeText("\u03c0", Math.PI, 0, BELOW);
+				this.scatter.makeAxis(0, 0, 0.1, VERT);
+				this.scatter.makeText("0", 0, 0, LEFT);
+				this.scatter.makeText("1", 0, 1, LEFT);
+				this.scatter.makeLine(Math.PI, 0, Math.PI, 1, "gray");
+				this.scatter.makeLine(0, 1, Math.PI, 1, "gray");
+				this.sine1 = this.scatter.makePath();
+				this.sine2 = this.scatter.makePath();
+				//Pi estimate graph
+				this.piGraph = new Canvas(this.graphs, 100, 200, "Pi Estimate");
+				this.piGraph.setBounds(-0.5, 0.5, 0, 5);
+				this.piGraph.setMargins(30, 20, 30, 20);
+				this.piGraph.makeAxis(0, -0.5, 0.5, VERT);
+				this.piGraph.makeText("0", 0, 0, LEFT);
+				this.piGraph.makeText("5", 0, 5, LEFT);
+				this.piGraph.makeText("\u03c0", 0, Math.PI, LEFT);
+				this.piGraph.makeDot(0, Math.PI, 3, "blue");
+				this.piDot = this.piGraph.makeDot(0, 0, 1, "none", "none");
+				//Distribution graph and table
+				this.distGraph = new DistGraph(this.graphs, 200, 200);
+				this.distTable = new DistTable(this.tables, 300, 125);
+				this.reset();
+			}
+			reset() {
+				this.l = this.lParam.getValue();
+				let p = 2 * this.l / Math.PI;
+				//Floor
+				this.floor.clearLine(this.needle);
+				//Scatterplot
+				this.scatter.reset(12);
+				let d1 = "", d2 = "";
+				d1 = this.scatter.moveTo(d1, 0, 0);
+				d2 = this.scatter.moveTo(d2, 0, 1);
+				let y = 0;
+				for (let x = 0; x <= Math.PI; x = x + 0.05) {
+					y = 0.5 * this.l * Math.sin(x);
+					d1 = this.scatter.lineTo(d1, x, y);
+					d2 = this.scatter.lineTo(d2, x, 1 - y);
+				}
+				this.scatter.draw(this.sine1, d1, "blue", "none");
+				this.scatter.draw(this.sine2, d2, "blue", "none");
+				//Pi graph
+				this.piGraph.clearDot(this.piDot);
+				//Distribution
+				this.dist = new BernoulliDistribution(p);
+				this.distGraph.setDist(this.dist, "I");
+				this.distTable.setDist(this.dist, "I");
+				this.distTable.textArea.value += "\n" + "\u03c0\t" + "3.14159\t";
+				super.reset();
+			}
+			simulate() {
+				let angle = Math.random() * Math.PI, distance = Math.random();
+				let cross = 0, crossFreq = 0, piEst = 0;
+				//Crack cross event
+				if (distance < 0.5 * this.l * Math.sin(angle) || distance > 1 - 0.5 * this.l * Math.sin(angle)) cross = 1;
+				this.dist.setValue(cross);
+				crossFreq = this.dist.data.freq(1);
+				if (crossFreq > 0) piEst = 2 * this.l * this.runCount / crossFreq;
+				//Scatterplot
+				this.scatter.makeDot(angle, distance, 2, "red");
+				//Needle
+				let x1 = -0.5 * this.l * Math.cos(angle), x2 = 0.5 * this.l * Math.cos(angle);
+				let y1 = distance - 0.5 * this.l * Math.sin(angle), y2 = distance + 0.5 * this.l * Math.sin(angle);
+				this.floor.setLine(this.needle, x1, y1, x2, y2, "red");
+				//Pi graph
+				this.piGraph.setDot(this.piDot, 0, piEst, 4, "rgba(255, 0, 0, 0.7)");
+				//Distribution graph
+				this.distGraph.update();
+				this.distTable.update();
+				this.distTable.textArea.value += "\n" + "\u03c0\t" + "3.14159\t" + piEst.toFixed(5); 
+				this.dataTable.setCurrentData([this.runCount, angle.toFixed(2), distance.toFixed(2), cross]);
+				super.simulate();
+			}
+		}
+		const app = new BuffonNeedleApp("app", 0.5);
+		window.resizeTo(800, 600);
+
+
+	</script>
+</head>
+
+<body onload="app.initialize();" class="ancillary"></body>
+
+<header>
+	<h3 class="ancillary">Buffon's Needle Experiment</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>Buffon's needle experiment is a random experiment that results in a statistical estimation of the number \(\pi\). The experiment consists of dropping a needle on hardwood floor, with floorboards of width 1. Random variable \(X\) gives the angle of the needle relative to the floorboard cracks and random variable \(Y\) gives the distance from the center of the needle to the lower crack. Each point \((X, Y)\) is shown as a red dot in the scatterplot. Random variable \(I\) indicates the event that the needle crosses a crack. This event is the region above the blue upper curve and below the blue lower curve in the scatterplot. Buffon's estimate of \(\pi\) is \(2 L n / N\) where \(n\) is the number of runs and \(N\) the number of crack crossings. When the experiment runs, \(X\), \(Y\), and \(I\) are recorded in the data table. The distribution of \(I\) is described in the distribution graph and table. The estimate of \(\pi\) is shown in the third graph and given in the distribution table of \(I\). The parameter is the needle length \(L\), which can be varied with a scrollbar.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Buffon's Needle Experiment</li>
+	</ol>
+</footer>
+
+</body>
+</html>

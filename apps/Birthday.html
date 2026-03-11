@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Birthday Experiment</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, simulation, birthday problem, birthday distribution">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Birthday Experiment
+		"use strict";
+		class BirthdayApp extends SimApp {
+			constructor(name, m, n) {
+				super(name);
+				this.m = m;
+				this.n = n;
+			}
+			initialize() {
+				super.initialize();
+				//Data table
+				this.dataTable = new DataTable(this.tables, 200, 100);
+				this.dataTable.setHeader(["Run", "V", "I"]);
+				//Parameter
+				this.mParam = new Parameter(this.toolbar, "<var>m</var>", "Populatioon size");
+				this.mParam.setProperties(1, 400, 1, this.m);
+				this.mParam.setMethod(this.name, "reset()");
+				this.nParam = new Parameter(this.toolbar, "<var>n</var>", "Sample size");
+				this.nParam.setProperties(1, 50, 1, this.n);
+				this.nParam.setMethod(this.name, "reset()");
+				//Balls
+				this.urn = new Urn(this.graphs);
+				//Distribution graph and table
+				this.vGraph = new DistGraph(this.graphs, 400, 200);
+				this.vTable = new DistTable(this.tables, 200, 100);
+				this.iGraph = new DistGraph(this.graphs, 150, 200);
+				this.iTable = new DistTable(this.tables, 200, 100);
+				this.reset();
+			}
+			reset() {
+				//Parameters
+				this.m = this.mParam.getValue();
+				this.n = this.nParam.getValue();
+				let m = this.m, n = this.n, p = 0;
+				//Urn
+				this.urn.setBalls(n);
+				//Distributions
+				p = 1 - perm(m, n) / m ** n;
+				this.vDist = new BirthdayDistribution(m, n);
+				this.iDist = new BernoulliDistribution(p);
+				this.vGraph.setDist(this.vDist, "V");
+				this.vTable.setDist(this.vDist, "V");
+				this.iGraph.setDist(this.iDist, "I");
+				this.iTable.setDist(this.iDist, "I");
+				super.reset();
+			}
+			simulate() {
+				let v = 0, d = 0, count = [], m = this.m, n = this.n;
+				for (let i = 0; i < m; i++) count[i] = 0;
+				for (let i = 0; i < n; i++) {
+					let j = Math.floor(m * Math.random());
+					if (count[j] == 0) v++;
+					count[j]++;
+					if (count[j] > 1)  this.urn.setBall(i, j + 1, "red"); 
+					else this.urn.setBall(i, j + 1, "green");
+				}
+				if (v < n) d = 1;
+				this.vDist.setValue(v);
+				this.iDist.setValue(d);
+				this.vGraph.update();
+				this.vTable.update();
+				this.iGraph.update();
+				this.iTable.update();
+				this.dataTable.setCurrentData([this.runCount, v, d]);
+				super.simulate();				
+			}
+		}
+		const app = new BirthdayApp("app", 365, 20);
+		window.resizeTo(750, 600);
+	</script>
+</head>
+
+<body class="ancillary" onload="app.initialize();">
+
+<header>
+	<h3 class="ancillary">Birthday Experiment</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>The experiment is to draw a random sample of size \(n\) <em>with replacement</em> from a population of size \(m\). In the app, the population consists of \(m\) balls numbered from 1 to \(m\). The random variables of interest are \(V\), the number of distinct values in the sample, and \(I\), the indicator variable that indicates at least one duplication in the sample (the birthday event). These variables are recorded in the data table and their distributions described in the distribution graphs and tables. The parameters \(m\) and \(n\) can be varied with scrollbars.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Birthday Experiment</li>
+	</ol>
+</footer>
+
+</body>
+</html>

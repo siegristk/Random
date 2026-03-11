@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Alternating Coin Experiment</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, simulation, geometric distribution, truncated geometric distribution, alternating coin tossing">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Alternating coin experiment
+		"use strict";
+        class TruncatedGeometricDistribution extends Distribution {
+            constructor(n, p) {
+                super(1, n, 1, DISC);
+                this.n = n;
+                this.p = p;
+            }
+            mode() {
+                return 1;
+            }
+            density(i) {
+                const p = this.p, n = this.n;
+                return p * (1 - p) ** (i - 1) / (1 - (1 - p) ** n);
+            }
+            mean() {
+                const p = this.p, n = this.n;
+                return 1 / p - n * (1 - p) ** n / (1 - (1 - p) ** n);
+            }
+            variance() {
+                const p = this.p, n = this.n;
+                return (1 - p) / p ** 2 - (n ** 2) * (1 - p) ** n / (1 - (1 - p) ** n) ** 2; 
+            }
+            simulate() {
+                const p = this.p, n = this.n;
+                let trials = 1, rounds = 0;
+                while (Math.random() > p) trials++;
+                rounds = Math.ceil(trials / n);
+                return trials - n * (rounds - 1);
+            }
+        }
+		class AlternatingCoinApp extends SimApp {
+			constructor(name, n, p) {
+				super(name);
+				this.n = n;
+				this.p = p;
+			}
+			initialize() {
+				super.initialize();
+				//Parameters 
+				this.nParam = new Parameter(this.toolbar, "<var>n</var>", "Number of players");
+				this.nParam.setProperties(2, 10, 1, this.n);
+				this.nParam.setMethod(this.name, "reset()");
+				this.pParam = new Parameter(this.toolbar, "<var>p</var>", "Probability of heads");
+				this.pParam.setProperties(0.05, 0.95, 0.01, this.p);
+				this.pParam.setMethod(this.name, "reset()");
+				//Coins
+				this.coinBox = new CoinBox(this.graphs);
+				//Graphs
+				this.tossGraph = new DistGraph(this.graphs, 300, 200);
+                this.roundGraph = new DistGraph(this.graphs, 300, 200);
+                this.winGraph = new DistGraph(this.graphs, 300, 200);
+                //Tables
+				this.tossTable = new DistTable(this.tables, 300, 100);
+				this.roundTable = new DistTable(this.tables, 300, 100);
+				this.winTable = new DistTable(this.tables, 300, 100);
+				this.dataTable = new DataTable(this.tables, 300, 100);
+				this.dataTable.setHeader(["Run", "N", "R", "W"]);
+				this.reset();
+			}
+			reset() {
+				this.n = this.nParam.getValue();
+				this.p = this.pParam.getValue();
+				this.coinBox.setCoins(this.n);
+				this.tossDist = new GeometricDistribution(this.p);
+                this.roundDist = new GeometricDistribution0(1 - (1 - this.p) ** this.n);
+                this.winDist = new TruncatedGeometricDistribution(this.n, this.p);
+                this.tossGraph.setDist(this.tossDist, "N");
+                this.roundGraph.setDist(this.roundDist, "R");
+                this.winGraph.setDist(this.winDist, "W");
+                this.tossTable.setDist(this.tossDist, "N");
+                this.roundTable.setDist(this.roundDist, "R");
+                this.winTable.setDist(this.winDist, "W");
+				super.reset();
+			}
+			simulate() {
+				//Toss the coins
+                const p = this.p, n = this.n;
+                let toss = 1, round = 0, win = 0;
+                for (let i = 0; i < n; i++) this.coinBox.setValue(i, -1);
+                while (Math.random() > p) toss++
+                round = Math.floor((toss - 1) / n);
+                win = toss - round * n;
+                for (let i = 0; i < win - 1; i++) this.coinBox.setValue(i, 0);
+                this.coinBox.setValue(win - 1, 1)
+                this.tossDist.setValue(toss);
+                this.roundDist.setValue(round);
+                this.winDist.setValue(win);
+                this.tossGraph.update();
+                this.roundGraph.update();
+                this.winGraph.update();
+                this.tossTable.update();
+                this.roundTable.update();
+                this.winTable.update();
+				this.dataTable.setCurrentData([this.runCount, toss, round, win]);
+				super.simulate();
+			}
+		}
+		const app = new AlternatingCoinApp("app", 2, 0.5);
+		window.resizeTo(1000, 600);
+	</script>
+</head>
+
+<body onload="app.initialize();" class="ancillary">
+
+<div class="latex">
+    \(\newcommand{\N}{\mathbb{N}}\)
+</div>
+
+<header>
+	<h3 class="ancillary">Alternating Coin Experiment</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>A coin has probability of heads \(p \in (0, 1)\). There are \(n \in \N_+\) players who take turns tossing the coin in round-robin style: player 1 first, then player 2, continuing until player \(n\), then player 1 again, and so forth. The first player to toss heads wins the game. Let \(N\) denote the number of the first toss that results in heads; \(N\) has the geometric distribution on \(\N_+\) with parameter \(p\). Let \(R\) denote the number of complete tail rounds played (all players toss tails); \(R\) has the geometric distribution on \(\N\) with parameter \(1 - (1 - p)^n\). Let \(W\) denote the winner of the game; \(W\) has the truncated geometric distribution with parameter \(n\) and \(p\). The variables \(N\), \(R\), and \(W\) are related by \(N = n R + W\) and are recorded in the data table on each update. The distributions of the variables are described in the distribution graphs and tables. The coins show just the result of the last round, when the winning player is determined. The parameters \(n\) and \(p\) can be varied with the scrollbars.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Alternating Coin Experiment</li>
+	</ol>
+</footer>
+
+</body>
+</html>

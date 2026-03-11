@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Beta Estimation Experiment</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, simulation, point estimate, beta distribution, random sample">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Beta estimate experiment 
+		"use strict";
+		class BetaEstimateApp extends SimApp {
+            constructor(name, n, a, b) {
+                super(name);
+                this.n = n;
+                this.a = a;
+                this.b = b;
+            }
+            initialize() {
+				super.initialize();
+				//Parameters
+				this.nParam = new Parameter(this.toolbar, "<var>n</var>", "Sample size");
+				this.nParam.setProperties(1, 100, 1, this.n);
+                this.nParam.setMethod(this.name, "reset()");
+				this.aParam = new Parameter(this.toolbar, "<var>a</var>", "Left shape");
+				this.aParam.setProperties(1, 50, 1, this.a);
+                this.aParam.setMethod(this.name, "reset()");
+				this.bParam = new Parameter(this.toolbar, "<var>b</var>", "Right shape");
+				this.bParam.setProperties(1, 50, 1, this.b);
+                this.bParam.setMethod(this.name, "reset()");
+                //Graph and data table
+				this.distGraph = new DistGraph(this.graphs, 400, 200);
+				this.dataTable = new DataTable(this.graphs, 375, 175);
+                this.dataTable.setHeader(["Run", "U", "V", "Ub", "Va", "W"]);
+                //Estimate tables
+                this.uTable = new Table(this.tables, 150, 75, "U Table");
+                this.uTable.setHeader(["U", "Data"]);
+                this.vTable = new Table(this.tables, 150, 75, "V Table");
+                this.vTable.setHeader(["V", "Data"]);
+                this.ubTable = new Table(this.tables, 150, 75, "Ub Table");
+                this.ubTable.setHeader(["Ub", "Data"]);
+                this.vaTable = new Table(this.tables, 150, 75, "Vk Table");
+                this.vaTable.setHeader(["Va", "Data"]);
+                this.wTable = new Table(this.tables, 150, 75, "W Table");
+                this.wTable.setHeader(["W", "Data"]);
+                this.reset();
+            }
+            reset() {
+                //Parameters
+                this.n = this.nParam.getValue();
+                this.a = this.aParam.getValue();
+                this.b = this.bParam.getValue();
+                let n = this.n, a = this.a, b = this.b;
+                //Graph
+                this.dist = new BetaDistribution(a, b);
+                this.distGraph.setDist(this.dist, "X");
+                //U table
+                this.uTable.reset();
+                this.uDataBias = 0; this.uDataMSE = 0;
+                this.uTable.addData(["Bias"]);
+                this.uTable.addData(["MSE"]);
+                //V Table
+                this.vTable.reset();
+                this.vDataBias = 0; this.vDataMSE = 0;
+                this.vTable.addData(["Bias"]);
+                this.vTable.addData(["MSE"]);
+                //Ub Table
+                this.ubTable.reset();
+                this.ubDataBias = 0; this.ubDataMSE = 0;
+                this.ubTable.addData(["Bias"]);
+                this.ubTable.addData(["MSE"]);
+                //Va Table
+                this.vaTable.reset();
+                this.vaDataBias = 0; this.vaDataMSE = 0;
+                this.vaTable.addData(["Bias"]);
+                this.vaTable.addData(["MSE"]);
+                //W Table
+                this.wTable.reset();
+                this.wDataBias = 0; this.wDataMSE = 0;
+                this.wTable.addData(["Bias"]);
+                this.wTable.addData(["MSE"]);
+                super.reset();
+            }
+            simulate() {
+                let n = this.nParam.getValue(), a = this.aParam.getValue(), b = this.bParam.getValue();
+                //Sample and compute stats
+                let x = 0, sum = 0, sum2 = 0, sumLog = 0;
+                this.dist.data.reset();
+                for (let i = 0; i < n; i++) {
+                    x = this.dist.simulate();
+                    sum += x;
+                    sum2 += x ** 2;
+                    sumLog += Math.log(x);
+                }
+                this.distGraph.update();
+				let r = this.runCount, m = sum / n, m2 = sum2 / n, u = m * (m - m2) / (m2 - m ** 2);
+				let v = (1 - m) * (m - m2) / (m2 - m * m), ub = b * m / (1 - m), va = a * (1 - m) / m;
+                let w = -n / sumLog;
+                this.dataTable.setCurrentData([r, u.toFixed(3), v.toFixed(3), ub.toFixed(3), va.toFixed(3), w.toFixed(3)]);
+                //Compute data bias and MSE for each stat
+                this.uDataBias = ((r - 1) * this.uDataBias + (u - a)) / r;
+                this.uDataMSE =  ((r - 1) * this.uDataMSE + (u - a) ** 2) / r;
+                this.vDataBias = ((r - 1) * this.vDataBias + (v - b)) / r;
+                this.vDataMSE =  ((r - 1) * this.vDataMSE + (v - b) ** 2) / r;
+                this.ubDataBias = ((r - 1) * this.ubDataBias + (ub - a)) / r;
+                this.ubDataMSE =  ((r - 1) * this.ubDataMSE + (ub - a) ** 2) / r;
+                this.vaDataBias = ((r - 1) * this.vaDataBias + (va - b)) / r;
+                this.vaDataMSE =  ((r - 1) * this.vaDataMSE + (va - b) ** 2) / r;
+                this.wDataBias = ((r - 1) * this.wDataBias + (w - a)) / r;
+                this.wDataMSE =  ((r - 1) * this.wDataMSE + (w - a) ** 2) / r;
+                //Update the tables
+                this.uTable.reset();
+                this.uTable.addData(["Bias", this.uDataBias.toFixed(3)]);
+                this.uTable.addData(["MSE", this.uDataMSE.toFixed(3)]);
+                this.vTable.reset();
+                this.vTable.addData(["Bias", this.vDataBias.toFixed(3)]);
+                this.vTable.addData(["MSE", this.vDataMSE.toFixed(3)]);
+                this.ubTable.reset();
+                this.ubTable.addData(["Bias", this.ubDataBias.toFixed(3)]);
+                this.ubTable.addData(["MSE", this.ubDataMSE.toFixed(3)]);
+                this.vaTable.reset();
+                this.vaTable.addData(["Bias", this.vaDataBias.toFixed(3)]);
+                this.vaTable.addData(["MSE", this.vaDataMSE.toFixed(3)]);
+                this.wTable.reset();
+                this.wTable.addData(["Bias", this.wDataBias.toFixed(3)]);
+                this.wTable.addData(["MSE", this.wDataMSE.toFixed(3)]);
+                super.simulate();
+			}
+		}
+		const app = new BetaEstimateApp("app", 10, 1, 1);
+        window.resizeTo(900, 600);
+	</script>
+</head>
+
+<body class="ancillary" onload="app.initialize();">
+
+<header>
+	<h3 class="ancillary">Beta Estimation Experiment</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>The experiment is to generate a random sample \(\boldsymbol{X} = (X_1, X_2, \ldots, X_n)\) from the beta distribution with left parameter \(a\) and right parameter \(b\). The statistics of interest are
+\begin{align}
+	U &amp; = \frac{M(M - M^{(2)})}{M^{(2)} - M^2} \\
+	V &amp; = \frac{(1 - M)(M - M^{(2)})}{M^{(2)} - M^2} \\
+	U_b &amp; = b \frac{M}{1 - M} \\
+	V_a &amp; =  a \frac{1 - M}{M} \\
+	W &amp; = - \frac{n}{\sum_{i = 1}^n \ln(X_i)}
+\end{align}
+where \(M = \frac{1}{n} \sum_{i = 1}^n X_i\) and \(M^{(2)} = \frac{1}{n} \sum_{i = 1}^n X_i^2\)</p>
+
+<p>Statistics \(U\) and \(V\) are estimators of \(a\) and \(b\), respectively. Statistic \(U_b\) is an estimator of \(a\) assuming that \(b\) is known, while \(V_a\) is an estimator of \(b\) assuming that \(a\) is known. Statistics \(W\) is an estimator of \(a\), assumping that \(b = 1\). The parameters \(a\), \(b\), and \(n\) can be varied with the input controls.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Beta Estimation Experiment</li>
+	</ol>
+</footer>
+
+</body>
+</html>

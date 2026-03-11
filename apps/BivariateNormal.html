@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Bivariate Normal Experiment</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, simulation, bivariate normal distribution">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Bivariate normal exerpiment
+		"use strict";
+		class BivariateNormalApp extends SimApp {
+			constructor(name, sigmaX, sigmaY, rho) {
+				super(name);
+				this.sigmaX = sigmaX;
+				this.sigmaY = sigmaY;
+				this.rho = rho;
+			}
+			initialize() {
+				super.initialize();
+				//Parameters
+				this.sigmaXParam = new Parameter(this.toolbar, "<var>\u03C3</var><sub><var>x</var></sub>", "Standard deviation X");
+				this.sigmaXParam.setProperties(0.5, 2.0, 0.1, this.sigmaX);
+				this.sigmaXParam.setMethod(this.name, "reset()");
+				this.sigmaYParam = new Parameter(this.toolbar, "<var>\u03C3</var><sub><var>y</var></sub>", "Standard deviation Y");
+				this.sigmaYParam.setProperties(0.5, 2.0, 0.1, this.sigmaY);
+				this.sigmaYParam.setMethod(this.name, "reset()");
+				this.rhoParam = new Parameter(this.toolbar, "<var>\u03C1</var>", "Correlation");
+				this.rhoParam.setProperties(-1, 1, 0.1, this.rho);
+				this.rhoParam.setMethod(this.name, "reset()");
+				//Scatter plot
+				this.scatterPlot = new Canvas(this.graphs, 300, 300, "Scatterplot");
+				this.scatterPlot.setBounds(-6, 6, -6, 6);
+				this.scatterPlot.setMargins(20, 20, 20, 20);
+				this.scatterPlot.makeAxis(-6, -6, 1, HOR);
+				this.scatterPlot.makeText("-6", -6, -6, BELOW, 10, "normal");
+				this.scatterPlot.makeText("6", 6, -6, BELOW, 10, "normal");
+				this.scatterPlot.makeAxis(-6, -6, 1, VERT);
+				this.scatterPlot.makeText("-6", -6, -6, LEFT, 10, "normal");
+				this.scatterPlot.makeText("6", -6, 6, LEFT, 10, "normal");
+				this.scatterPlot.makeLine(6, -6, 6, 6, "gray");
+				this.scatterPlot.makeLine(-6, 6, 6, 6, "gray");
+				this.distLine = this.scatterPlot.makeLine(-6, 0, 6, 0, "none");
+				this.sampleLine = this.scatterPlot.makeLine(-6, 0, 6, 0, "none");
+				//Distribution graphs
+				this.xGraph = new DistGraph(this.graphs, 300, 200);
+				this.yGraph = new DistGraph(this.graphs, 300, 200);
+				//Tables
+				this.dataTable = new DataTable(this.tables, 200, 100);
+				this.dataTable.setHeader(["Run", "X", "Y"]);
+				this.statsTable = new Table(this.tables, 200, 100, "Correlation table");
+				this.statsTable.setHeader(["(X, Y)", "Dist", "Data"]);
+				this.xTable = new DistTable(this.tables, 200, 100);
+				this.yTable = new DistTable(this.tables, 200, 100);
+				this.reset();
+			}
+			reset() {
+				//Parameters
+				this.sigmaX = this.sigmaXParam.getValue();
+				this.sigmaY = this.sigmaYParam.getValue();
+				this.rho = this.rhoParam.getValue();
+				let sigmaX = this.sigmaX, sigmaY = this.sigmaY, rho = this.rho;
+				//Distributions
+				this.xDist = new NormalDistribution(0, sigmaX);
+				this.yDist = new NormalDistribution(0, sigmaY);
+				this.xGraph.setDist(this.xDist, "X");
+				this.yGraph.setDist(this.yDist, "Y");
+				this.xTable.setDist(this.xDist, "X");
+				this.yTable.setDist(this.yDist, "Y");
+				//Stats
+				this.sum = 0;
+				this.distCov = rho * sigmaX * sigmaY;
+				this.distSlope = rho * sigmaY / sigmaX;
+				this.distIntercept = this.yDist.mean() - this.distSlope * this.xDist.mean();
+				let y0 = this.distIntercept - 6 * this.distSlope;
+				let y1 = this.distIntercept + 6 * this.distSlope;
+				this.statsTable.reset();
+				this.statsTable.addData(["Cov", this.distCov.toFixed(2)]);
+				this.statsTable.addData(["Cor", rho.toFixed(2)]);
+				this.statsTable.addData(["Slope", this.distSlope.toFixed(2)]);
+				this.statsTable.addData(["Const", this.distIntercept.toFixed(2)]);
+				//Scatter plot
+				this.scatterPlot.reset(12);
+				this.scatterPlot.setLine(this.distLine, -6, y0, 6, y1, "blue");
+				this.scatterPlot.setLine(this.sampleLine, -6, 0, -6, 0, "none");
+				super.reset();
+			}
+			simulate() {
+				//Simulate the variables
+				let r = Math.sqrt(-2 * Math.log(Math.random()));
+				let theta = 2 * Math.PI * Math.random();
+				let u = r * Math.cos(theta);
+				r = Math.sqrt(-2 * Math.log(Math.random()));
+				theta = 2 * Math.PI * Math.random();
+				let v = r * Math.cos(theta);
+				let x = this.sigmaX * u;
+				let y = this.sigmaY * this.rho * u + this.sigmaY * Math.sqrt(1 - this.rho ** 2) * v;
+				this.scatterPlot.makeDot(x, y, 3, "red");
+				this.xDist.setValue(x);
+				this.yDist.setValue(y);
+				this.xGraph.update();
+				this.xTable.update();
+				this.yGraph.update();
+				this.yTable.update();
+				//Stats
+				let y0 = 0, y1 = 0;
+				this.sum += x * y;
+				let sampleCov = (this.sum -  this.runCount * this.xDist.data.mean() * this.yDist.data.mean()) / (this.runCount - 1);
+				let sampleCor = sampleCov / (this.xDist.data.stdDev() * this.yDist.data.stdDev());
+				let sampleSlope = sampleCov / this.xDist.data.variance();
+				let sampleIntercept = this.yDist.data.mean() - sampleSlope * this.xDist.data.mean();
+				if (this.runCount > 1) {
+					y0 = sampleIntercept - 6 * sampleSlope;
+					y1 = sampleIntercept + 6 * sampleSlope;
+					this.scatterPlot.setLine(this.sampleLine, -6, y0, 6, y1, "red");
+				}
+				this.statsTable.reset();
+				this.statsTable.addData(["Cov", this.distCov.toFixed(2), sampleCor.toFixed(2)]);
+				this.statsTable.addData(["Cor", this.rho.toFixed(2), sampleCor.toFixed(2)]);
+				this.statsTable.addData(["Slope", this.distSlope.toFixed(2), sampleSlope.toFixed(2)]);
+				this.statsTable.addData(["Const", this.distIntercept.toFixed(2), sampleIntercept.toFixed(2)]);
+				this.dataTable.setCurrentData([this.runCount, x.toFixed(2), y.toFixed(2)]);
+				super.simulate();
+			}
+		}
+		const app = new BivariateNormalApp("app", 1, 1, 0);
+		window.resizeTo(1000, 800);
+	</script>
+</head>
+
+<body class="ancillary" onload="app.initialize();">
+
+<header>
+	<h3 class="ancillary">Bivariate Normal Experiment</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>The experiment generates a random point \((X, Y)\) from a bivariate normal distribution: \(X\) has mean 0 and standard deviation \(\sigma_x\), \(Y\) as mean 0 and standard deviation \(\sigma_y\), and \((X, Y)\) has correlation \(\rho\). The point is shown graphically as a red dot in the scatterplot. The distribution regression line is shown in blue in the scatterplot and the sample regression line is shown in red. The parameters \(\sigma_x\), \(\sigma_y\), and \(\rho\) can be varied with the input controls.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Bivariate Normal Experiment</li>
+	</ol>
+</footer>
+
+</body>
+</html>

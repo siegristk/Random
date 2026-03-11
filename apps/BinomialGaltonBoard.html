@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Binomial Galton Board Experiment</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, simulation, Bernoulli trials, binomial distribution, Galton board">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Galton Board Experiment
+		"use strict";
+		class BinomialGaltonBoardApp extends SimApp {
+			constructor(name, n, p) {
+				super(name)
+				this.n = n;
+				this.p = p;
+			}
+			initialize() {
+				super.initialize();
+				//Data table
+				this.dataTable = new DataTable(this.tables, 300, 100);
+				this.dataTable.setHeader(["Run", "Y", "M"]);
+				//Parameters
+				const parameters = this.addToolbar();
+				this.nParam = new Parameter(parameters, "<var>n</var>", "Number of trials");
+				this.nParam.setProperties(1, 50, 1, this.n);
+				this.nParam.setMethod(this.name, "reset()");
+				this.pParam = new Parameter(parameters, "<var>p</var>", "Probability of success");
+				this.pParam.setProperties(0, 1, 0.01, this.p);
+				this.pParam.setMethod(this.name, "reset()");
+				//Random variable select
+				this.rvSelect = new Select(parameters, "Random variable");
+				this.rvSelect.setOptions(["Y", "M"], ["Y: number of successes", "M: proportion of successes"], 0);
+				this.rvSelect.setMethod(this.name, "setDist()");
+				//Graphs
+				this.galtonBoard = new GaltonBoard(this.graphs, 600, 300);
+				this.galtonBoard.setMargins(30, 20, 20, 20);
+				this.distGraph = new DistGraph(this.graphs, 600, 200);
+				this.distTable = new DistTable(this.tables, 300, 100);
+				this.reset();
+			}
+			reset() {
+				this.n = this.nParam.getValue();
+				this.p = this.pParam.getValue();
+				this.galtonBoard.setRows(this.n);
+				this.binomialDist = new BinomialDistribution(this.n, this.p);
+				this.scaleDist = new LocationScaleDistribution(this.binomialDist, 0, 1 / this.n);
+				this.setDist();
+				super.reset();
+			}
+			setDist() {
+				if (this.rvSelect.getValue() == "Y") {
+					this.distGraph.setDist(this.binomialDist, "Y");
+					this.distTable.setDist(this.binomialDist, "Y");
+				}
+				else {
+					this.distGraph.setDist(this.scaleDist, "M");
+					this.distTable.setDist(this.scaleDist, "M");
+				}
+				this.distGraph.update();
+				this.distTable.update();
+			}
+			simulate() {
+				this.galtonBoard.reset();
+				let sum = 0, average = 0, path = [];
+				for (let i = 0; i < this.n; i++) {
+					if (Math.random() < this.p) {
+						path[i] = 1;
+						sum++;
+					}
+					else path[i] = 0;
+				}
+				this.galtonBoard.setPath(path);
+				this.binomialDist.setValue(sum);
+				average = sum / this.n;
+				this.scaleDist.setValue(average);
+				this.distGraph.update();
+				this.distTable.update();
+				this.dataTable.setCurrentData([this.runCount,  sum,  average.toFixed(2)]);
+				super.simulate();
+			}
+		}
+		const app = new BinomialGaltonBoardApp("app", 10, 0.5);
+		window.resizeTo(700, 800);
+	</script>
+</head>
+
+<body class="ancillary" onload="app.initialize();">
+
+<header>
+	<h3 class="ancillary">Binomial Galton Board Experiment</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>The binomial Galton board experiment consists of performing \(n\) Bernoulli trials with probability of success \(p\). The trial outcomes are represented graphically as a path in the Galton board: success corresponds to a bounce to the right and failure to a bounce to the left. Random variable \(Y\) denotes the number of successes and and has the binomial distribution with parameters \(n\) and \(p\). Random variable \(M = Y / n\) denotes the proportion of successes and has a scaled version of the binomial distribution. Graphically, \(Y\) is the number of the peg in the last row of the Galton board that the ball hits. Variables \(Y\) and \(M\) are recorded in the data table, and the distribution of the selected variable is described in the distribution graph and table. The parameters \(n\) and \(p\) can be varied with scrollbars.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Binomial Galton Board Experiment</li>
+	</ol>
+</footer>
+
+</body>
+</html>

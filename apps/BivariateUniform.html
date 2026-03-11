@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Bivariate Uniform Experiment</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, simulation, bivariate uniform distribution">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Bivariate uniform exerpiment
+		"use strict";
+		class BivariateUniformApp extends SimApp {
+			constructor(name) {
+				super(name);
+			}
+			initialize() {
+				super.initialize();
+				//Selector
+				this.shapeSelect = new Select(this.toolbar, "Region");
+				this.shapeSelect.setOptions(["square", "triangle", "circle"], ["Square", "Triangle", "Circle"], 0);
+				this.shapeSelect.setMethod(this.name, "reset()");
+				//Scatter plot
+				this.scatterPlot = new Canvas(this.graphs, 300, 300, "Scatterplot");
+				this.scatterPlot.setBounds(-6, 6, -6, 6);
+				this.scatterPlot.setMargins(20, 20, 20, 20);
+				this.scatterPlot.makeAxis(-6, -6, 1, HOR);
+				this.scatterPlot.makeText("-6", -6, -6, BELOW, 10, "normal");
+				this.scatterPlot.makeText("6", 6, -6, BELOW, 10, "normal");
+				this.scatterPlot.makeAxis(-6, -6, 1, VERT);
+				this.scatterPlot.makeText("-6", -6, -6, LEFT, 10, "normal");
+				this.scatterPlot.makeText("6", -6, 6, LEFT, 10, "normal");
+				this.regLine = this.scatterPlot.makeLine(-6, 0, 6, 0, "none");
+				//Distribution graphs
+				this.xGraph = new DistGraph(this.graphs, 300, 200);
+				this.yGraph = new DistGraph(this.graphs, 300, 200);
+				//Tables
+				this.dataTable = new DataTable(this.tables, 200, 100);
+				this.dataTable.setHeader(["Run", "X", "Y"]);
+				this.statsTable = new Table(this.tables, 200, 100, "Correlation table");
+				this.statsTable.setHeader(["(X, Y)", "Dist", "Data"]);
+				this.xTable = new DistTable(this.tables, 200, 100);
+				this.yTable = new DistTable(this.tables, 200, 100);
+				this.reset();
+			}
+			reset() {
+				this.scatterPlot.setLine(this.regLine, -6, 0, 6, 0, "none")
+				switch(this.shapeSelect.getValue()) {
+					case "square":
+						this.scatterPlot.reset(11);
+						this.scatterPlot.makeLine(6, -6, 6, 6, "gray");
+						this.scatterPlot.makeLine(-6, 6, 6, 6, "gray");
+						this.xDist = new UniformDistribution(-6, 12);
+						this.yDist = new UniformDistribution(-6, 12);
+						this.distCov = 0;
+						this.distCor = 0;
+						break;
+					case "triangle":
+						this.scatterPlot.reset(10);
+						this.scatterPlot.makeLine(6, -6, 6, 6, "gray");
+						this.scatterPlot.makeLine(-6, -6, 6, 6, "gray");
+						this.xDist = new TriangleDistribution(-6, 12, 1);
+						this.yDist = new TriangleDistribution(-6, 12, 0);
+						this.distCov = 4;
+						this.distCor = 0.5;
+						break;
+					case "circle":
+						this.scatterPlot.reset(10);
+						this.scatterPlot.makeCircle(0, 0, 6, "gray", "none");
+						this.xDist = new SemiCircleDistribution(0, 6);
+						this.yDist = new SemiCircleDistribution(0, 6);
+						this.distCov = 0;
+						this.distCor = 0;
+						break;
+				}
+				this.xGraph.setDist(this.xDist, "X");
+				this.yGraph.setDist(this.yDist, "Y");
+				this.xTable.setDist(this.xDist, "X");
+				this.yTable.setDist(this.yDist, "Y");
+				this.distSlope = this.distCor * this.yDist.stdDev() / this.xDist.stdDev();
+				this.distIntercept = this.yDist.mean() - this.distSlope * this.xDist.mean();
+				let y0 = this.distIntercept - 6 * this.distSlope;
+				let y1 = this.distIntercept + 6 * this.distSlope;
+				this.scatterPlot.makeLine(-6, y0, 6, y1, "blue");
+				//Stats
+				this.sum = 0;
+				this.statsTable.reset();
+				this.statsTable.addData(["Cov", this.distCov.toFixed(2)]);
+				this.statsTable.addData(["Cor", this.distCor.toFixed(2)]);
+				this.statsTable.addData(["Slope", this.distSlope.toFixed(2)]);
+				this.statsTable.addData(["Const", this.distIntercept.toFixed(2)]);
+				super.reset();
+			}
+			simulate() {
+				let u = 0, v = 0, r = 0, x = 0, y = 0, theta = 0;
+				switch(this.shapeSelect.getValue()) {
+					case "square":
+						x = 12 * Math.random() - 6;
+						y = 12 * Math.random() - 6;
+						break;
+					case "triangle":
+						u = 12 * Math.random() - 6;
+						v = 12 * Math.random() - 6;
+						x = Math.max(u, v);
+						y = Math.min(u, v);
+						break;
+					case "circle":
+						u = 6 * Math.random();
+						v = 6 * Math.random();
+						r = Math.max(u, v);
+						theta = 2 * Math.PI * Math.random();
+						x = r * Math.cos(theta);
+						y = r * Math.sin(theta);
+						break;
+				}
+				this.scatterPlot.makeDot(x, y, 3, "red");
+				this.xDist.setValue(x);
+				this.yDist.setValue(y);
+				this.xGraph.update();
+				this.xTable.update();
+				this.yGraph.update();
+				this.yTable.update();
+				//Stats
+				let y0 = 0, y1 = 0;
+				this.sum += x * y;
+				let sampleCov = (this.sum -  this.runCount * this.xDist.data.mean() * this.yDist.data.mean()) / (this.runCount - 1);
+				let sampleCor = sampleCov / (this.xDist.data.stdDev() * this.yDist.data.stdDev());
+				let sampleSlope = sampleCov / this.xDist.data.variance();
+				let sampleIntercept = this.yDist.data.mean() - sampleSlope * this.xDist.data.mean();
+				if (this.runCount > 1) {
+					y0 = sampleIntercept - 6 * sampleSlope;
+					y1 = sampleIntercept + 6 * sampleSlope;
+					this.scatterPlot.setLine(this.regLine, -6, y0, 6, y1, "red");
+				}
+				this.statsTable.reset();
+				this.statsTable.addData(["Cov", this.distCov.toFixed(2), sampleCor.toFixed(2)]);
+				this.statsTable.addData(["Cor", this.distCor.toFixed(2), sampleCor.toFixed(2)]);
+				this.statsTable.addData(["Slope", this.distSlope.toFixed(2), sampleSlope.toFixed(2)]);
+				this.statsTable.addData(["Const", this.distIntercept.toFixed(2), sampleIntercept.toFixed(2)]);
+				this.dataTable.setCurrentData([this.runCount, x.toFixed(2), y.toFixed(2)]);
+				super.simulate();
+
+			}
+		}
+		const app = new BivariateUniformApp("app");
+		window.resizeTo(1000, 800);
+	</script>
+</head>
+
+<body class="ancillary" onload="app.initialize();">
+
+<header>
+	<h3 class="ancillary">Bivariate Uniform Experiment</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>The experiment generates a random point \((X, Y)\) from a uniform distribution on a region of the plane. Any of the following regions can be selected with the list box:</p>
+
+<ul>
+	<li>The square \(-6 \le x \le 6\), \(-6 \le y \le 6\)</li>
+	<li>The triangle \(-6 \le y \le x \le 6\)</li>
+	<li>The circle \(x^2 + y^2 \le 36\)</li>
+</ul>
+
+<p>The random point is shown has a red dot in the scatterplot. The scatterplot also shows the distribution regression line
+in blue and the empirical regression line in red.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Bivariate Uniform Experiment</li>
+	</ol>
+</footer>
+
+</body>
+</html>

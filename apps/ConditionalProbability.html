@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Conditional Probability Experiment</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, simulation, Venn diagram. conditional probability, uniform distribution">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+    <style>
+        input { text-align: right; height: 15px; margin-top: 0px; margin-bottom: 0px;}
+        table { margin-left: 10px; }
+    </style>
+	<script src="Apps.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+    <script>
+        //Conditional Probability Experiment
+        "use strict";
+        class ConditionalProbabilityApp extends SimApp {
+            constructor(name) {
+                super(name);
+                this.background = "rgb(200, 200, 200)";
+                this.highlight = "rgb(150, 150, 255)";
+            }
+            initialize() {
+                super.initialize();
+                //Data table
+                this.dataTable = new DataTable(this.tables, 300, 200);
+                this.dataTable.setHeader(["Run", "X", "Y"]);
+                this.sampleSpace = new Canvas(this.graphs, 300, 300, "");
+                this.sampleSpace.setMargins(0, 0, 0, 0);
+                this.sampleSpace.setBounds(0, 300, 300, 0);
+                this.S = new Rectangle(0, 0, 300, 300);
+                this.A = new Rectangle(50, 50, 200, 100);
+                this.B = new Rectangle(100, 100, 100, 150);
+                this.C = intersect(this.A, this.B);
+                this.rectS = this.sampleSpace.makeRect(this.S.x, this.S.y, this.S.x + this.S.w, this.S.y + this.S.h, "black", "transparent")
+                this.rectA = this.sampleSpace.makeRect(this.A.x, this.A.y, this.A.x + this.A.w, this.A.y + this.A.h, "black", "transparent");
+                this.rectB = this.sampleSpace.makeRect(this.B.x, this.B.y, this.B.x + this.B.w, this.B.y + this.B.h, "black", "transparent");
+                this.rectC = this.sampleSpace.makeRect(this.C.x, this.C.y, this.C.x + this.C.w, this.C.y + this.C.h, "black", "transparent");
+                this.rectA.setAttribute("id", "A");
+                this.rectB.setAttribute("id", "B");
+                this.rectC.setAttribute("id", "C");
+                this.rectS.setAttribute("id", "S");
+                //Sample space
+                this.moveA = false; this.moveB = false; this.resizeA = false; this.resizeB = false;
+                //Events
+                this.sampleSpace.svg.addEventListener("mouseup", mouseUp, false);
+                this.sampleSpace.svg.addEventListener("mousedown", mouseDown, false);
+                this.sampleSpace.svg.addEventListener("mousemove", mouseMove, false);
+                //Arrays
+                this.pInput = []; this.rfInput = []; this.setCheck = []; this.freq = [];
+                for (let i = 0; i < 12; i++){
+                    this.pInput[i] = document.getElementById("p" + i);
+                    this.rfInput[i] = document.getElementById("rf" + i);
+                    this.setCheck[i] = document.getElementById("set" + i);
+                }
+                this.nInput = document.getElementById("nInput")
+                this.set = 0;
+                this.reset();
+            }
+            reset() {
+                this.sampleSpace.reset(6);
+                this.setHighlight(this.set);
+                //Reset arrays
+                for (let i = 0; i < 12; i++){
+                    this.freq[i] = 0;
+                    this.rfInput[i].value = "";
+                }
+                this.nInput.value = 0;
+                //Compute probabilities
+                let prob = [];
+                let s = this.S.area();
+                this.C = intersect(this.A, this.B);
+                prob[0] = this.A.area() / s;
+                prob[1] = this.B.area() / s;
+                prob[2] = this.C.area() / s;
+                this.pInput[0].value = prob[0].toFixed(3);
+                this.pInput[1].value = prob[1].toFixed(3);
+                this.pInput[2].value = (1 - prob[0]).toFixed(3);
+                this.pInput[3].value = (1 - prob[1]).toFixed(3);
+                this.pInput[4].value = (prob[2] / prob[1]).toFixed(3);
+                this.pInput[5].value = (prob[2] / prob[0]).toFixed(3);
+                this.pInput[6].value = (1 - prob[2] / prob[1]).toFixed(3);
+                this.pInput[7].value = (1 - prob[2] / prob[0]).toFixed(3);
+                this.pInput[8].value = ((prob[0] - prob[2]) / (1 - prob[1])).toFixed(3);
+                this.pInput[9].value = ((prob[1] - prob[2]) / (1 - prob[0])).toFixed(3);
+                this.pInput[10].value = ((1 - prob[0] - prob[1] + prob[2]) / (1 - prob[1])).toFixed(3);
+                this.pInput[11].value = ((1 - prob[0] - prob[1] + prob[2]) / (1 - prob[0])).toFixed(3);
+                super.reset();
+            }
+            simulate() {
+                let x = this.S.w * Math.random();
+                let y = this.S.h * Math.random();
+                this.sampleSpace.makeDot(x, y, 2, "red");
+                //Update frequencies
+                let freq = this.freq, runCount = this.runCount;
+                if (this.A.contains(x, y)) freq[0]++;
+                if (this.B.contains(x, y)) freq[1]++;
+                if (this.C.contains(x, y)) freq[2]++;
+                this.rfInput[0].value = (freq[0] / runCount).toFixed(3);
+                this.rfInput[1].value = (freq[1] / runCount).toFixed(3);
+                this.rfInput[2].value = (1 - freq[0] / runCount).toFixed(3);
+                this.rfInput[3].value = (1 - freq[1] / runCount).toFixed(3);
+                this.rfInput[4].value = (freq[2] / freq[1]).toFixed(3);
+                this.rfInput[5].value = (freq[2] / freq[0]).toFixed(3);
+                this.rfInput[6].value = (1 - freq[2] / freq[1]).toFixed(3);
+                this.rfInput[7].value = (1 - freq[2] / freq[0]).toFixed(3);
+                this.rfInput[8].value = ((freq[0] - freq[2]) / (runCount - freq[1])).toFixed(3);
+                this.rfInput[9].value = ((freq[1] - freq[2]) / (runCount - freq[0])).toFixed(3);
+                this.rfInput[10].value = ((runCount - freq[0] - freq[1] + freq[2]) / (runCount - freq[1])).toFixed(3);
+                this.rfInput[11].value = ((runCount - freq[0] - freq[1] + freq[2]) / (runCount - freq[0])).toFixed(3);
+                this.dataTable.setCurrentData([runCount, (x / 300).toFixed(2), (1 - y / 300).toFixed(2)]);
+                this.nInput.value = runCount;
+                super.simulate();
+            }
+            setHighlight(s) {
+                this.set = s;
+                let sampleSpace = this.sampleSpace, S = this.S, A = this.A, B = this.B, C = this.C;
+                let rectS = this.rectS, rectA = this.rectA, rectB = this.rectB, rectC = this.rectC;
+                let background = this.background, highlight = this.highlight;
+                C = intersect(A, B);
+                sampleSpace.setRect(rectS, S.x, S.y, S.w, S.h, "black", "transparent")
+                sampleSpace.setRect(rectA, A.x, A.y, A.x + A.w, A.y + A.h, "black", "transparent");
+                sampleSpace.setRect(rectB, B.x, B.y, B.x + B.w, B.y + B.h, "black", "transparent");
+                sampleSpace.setRect(rectC, C.x, C.y, C.x + C.w, C.y + C.h, "black", "transparent");
+                switch(s){
+                case 0:
+                    sampleSpace.setRect(rectS, S.x, S.y, S.w, S.h, "black", background);
+                    sampleSpace.setRect(rectA, A.x, A.y, A.x + A.w, A.y + A.h, "black", highlight);
+                    break;
+                case 1: 
+                    sampleSpace.setRect(rectS, S.x, S.y, S.w, S.h, "black", background);
+                    sampleSpace.setRect(rectB, B.x, B.y, B.x + B.w, B.y + B.h, "black", highlight);
+                    break;
+                case 2:
+                    sampleSpace.setRect(rectS, S.x, S.y, S.w, S.h, "black", highlight);
+                    sampleSpace.setRect(rectA, A.x, A.y, A.x + A.w, A.y + A.h, "black", background);
+                    break;
+                case 3:
+                    sampleSpace.setRect(rectS, S.x, S.y, S.w, S.h, "black", highlight);
+                    sampleSpace.setRect(rectB, B.x, B.y, B.x + B.w, B.y + B.h, "black", background);
+                    break;
+                case 4:
+                    sampleSpace.setRect(rectS, S.x, S.y, S.w, S.h, "black", "white");
+                    sampleSpace.setRect(rectB, B.x, B.y, B.x + B.w, B.y + B.h, "black", background);
+                    sampleSpace.setRect(rectC, C.x, C.y, C.x + C.w, C.y + C.h, "black", highlight);
+                    break;
+                case 5:
+                    sampleSpace.setRect(rectS, S.x, S.y, S.w, S.h, "black", "white");
+                    sampleSpace.setRect(rectA, A.x, A.y, A.x + A.w, A.y + A.h, "black", background);
+                    sampleSpace.setRect(rectC, C.x, C.y, C.x + C.w, C.y + C.h, "black", highlight);
+                    break;
+                case 6:
+                    sampleSpace.setRect(rectS, S.x, S.y, S.w, S.h, "black", "white");
+                    sampleSpace.setRect(rectB, B.x, B.y, B.x + B.w, B.y + B.h, "black", highlight);
+                    sampleSpace.setRect(rectC, C.x, C.y, C.x + C.w, C.y + C.h, "black", background);
+                    break;
+                case 7:
+                    sampleSpace.setRect(rectS, S.x, S.y, S.w, S.h, "black", "white");
+                    sampleSpace.setRect(rectA, A.x, A.y, A.x + A.w, A.y + A.h, "black", highlight);
+                    sampleSpace.setRect(rectC, C.x, C.y, C.x + C.w, C.y + C.h, "black", background);
+                    break;
+                case 8:
+                    sampleSpace.setRect(rectS, S.x, S.y, S.w, S.h, "black", background);
+                    sampleSpace.setRect(rectA, A.x, A.y, A.x + A.w, A.y + A.h, "black", highlight);
+                    sampleSpace.setRect(rectB, B.x, B.y, B.x + B.w, B.y + B.h, "black", "white");
+                    break;
+                case 9:
+                    sampleSpace.setRect(rectS, S.x, S.y, S.w, S.h, "black", background);
+                    sampleSpace.setRect(rectB, B.x, B.y, B.x + B.w, B.y + B.h, "black", highlight);
+                    sampleSpace.setRect(rectA, A.x, A.y, A.x + A.w, A.y + A.h, "black", "white");
+                    break;
+                case 10:
+                    sampleSpace.setRect(rectS, S.x, S.y, S.w, S.h, "black", highlight);
+                    sampleSpace.setRect(rectA, A.x, A.y, A.x + A.w, A.y + A.h, "black", background);
+                    sampleSpace.setRect(rectB, B.x, B.y, B.x + B.w, B.y + B.h, "black", "white");
+                    break;
+                case 11:
+                    sampleSpace.setRect(rectS, S.x, S.y, S.w, S.h, "black", highlight);
+                    sampleSpace.setRect(rectB, B.x, B.y, B.x + B.w, B.y + B.h, "black", background);
+                    sampleSpace.setRect(rectA, A.x, A.y, A.x + A.w, A.y + A.h, "black", "white");
+                    break;
+                }
+                sampleSpace.makeText("S", 10, 10, BELOW, 12, "italic");
+                sampleSpace.makeText("A", A.x + 10, A.y + 10, BELOW, 12, "italic");
+                sampleSpace.makeText("B", B.x + B.w - 10, B.y + B.h - 10, LEFT, 12, "italic");
+            }
+        }
+        function mouseDown(evt) {
+            let mouse = app.sampleSpace.getMouseCoordinates(evt);
+            app.reset();
+            app.xStart = mouse.x;
+            app.yStart = mouse.y;
+            if (app.A.seCorner(mouse.x, mouse.y)) {
+                app.resizeA = true;
+            }
+            else if (app.B.seCorner(mouse.x, mouse.y)) {
+                app.resizeB = true;
+            }
+            else if (app.A.contains(mouse.x, mouse.y)) {
+                app.moveA = true;
+                app.xOld = app.A.x;
+                app.yOld = app.A.y;
+            }
+            else if (app.B.contains(mouse.x, mouse.y)) {
+                app.moveB = true;
+                app.sampleSpace.svg.style.cursor = "move";
+                app.xOld = app.B.x;
+                app.yOld = app.B.y;
+            }
+        }
+        function mouseMove(evt) {
+            let x, y, w, h;
+            let mouse = app.sampleSpace.getMouseCoordinates(evt);
+            if (app.A.seCorner(mouse.x, mouse.y) || app.B.seCorner(mouse.x, mouse.y)) app.sampleSpace.svg.style.cursor = "se-resize";
+            else if (app.A.contains(mouse.x, mouse.y) || app.B.contains(mouse.x, mouse.y)) app.sampleSpace.svg.style.cursor = "move";
+            else app.sampleSpace.svg.style.cursor = "default";
+            if (app.resizeA) {
+                w = mouse.x - app.A.x;
+                h = mouse.y - app.A.y;
+                if (w >= 20 && app.A.x + w <= app.S.w && h >= 20 && app.A.y + h <= app.S.h){
+                    app.A.w = w;
+                    app.A.h = h;
+                    app.reset();
+                }
+            }
+            else if (app.resizeB) {
+                w = mouse.x - app.B.x;
+                h = mouse.y - app.B.y;
+                if (w >= 20 && app.B.x + w <= app.S.w && h >= 20 && app.B.y + h <= app.S.h){
+                    app.B.w = w;
+                    app.B.h = h;
+                    app.reset();
+                }
+            }
+            else if (app.moveA) {
+                x = app.xOld + mouse.x - app.xStart;
+                y = app.yOld + mouse.y - app.yStart;
+                if (0 <= x && x + app.A.w <= app.S.w && 0 <= y && y + app.A.h <= app.S.h){
+                    app.A.x = x;
+                    app.A.y = y;
+                    app.reset();
+                }
+            }
+            else if (app.moveB) {
+                x = app.xOld + mouse.x - app.xStart;
+                y = app.yOld + mouse.y - app.yStart;
+                if (0 <= x && x + app.B.w <= app.S.w && 0 <= y && y + app.B.h <= app.S.h){
+                    app.B.x = x;
+                    app.B.y = y
+                    app.reset();
+                }
+            }
+        }
+        function mouseUp(evt) {
+            app.moveA = false;
+            app.moveB = false;
+            app.resizeA = false;
+            app.resizeB = false;
+            app.sampleSpace.svg.style.cursor = "default";
+        }
+        const app = new ConditionalProbabilityApp("app");
+        window.resizeTo(800, 825);
+    </script>
+</head>
+
+<body class="ancillary" onload="app.initialize(); window.resizeTo(800, 800);">
+
+<div class="latex">
+	\(\renewcommand{\P}{\mathbb{P}}\)
+</div>
+
+<header>
+	<h3 class="ancillary">Conditional Probability Experiment</h3>
+</header>
+
+<div class="app">
+    <div class="row">
+        <div id="app" class="column"></div>
+        <table class="column" title="Probability table">
+            <thead>
+                <tr>
+                    <th>Event</th>
+                    <th>Prob</th>
+                    <th>Rel Freq</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <input type="radio" id="set0" name="Subset" onclick="app.setHighlight(0);" checked>
+                        <label for="set0">\( A \)</label>
+                    </td>
+                    <td><input type="text" readonly id="p0" size="5"></td>
+                    <td><input type="text" readonly id="rf0" size="5"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="radio" id="set1" name="Subset" onclick="app.setHighlight(1);">
+                        <label for="set1">\( B \)</label>
+                    </td>
+                    <td><input type="text" readonly id="p1" size="5"></td>
+                    <td><input type="text" readonly id="rf1" size="5"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="radio" id="set2" name="Subset" onclick="app.setHighlight(2);">
+                        <label for="set2">\( A^c \)</label>
+                    </td>
+                    <td><input type="text" readonly id="p2" size="5"></td>
+                    <td><input type="text" readonly id="rf2" size="5"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="radio" id="set3" name="Subset" onclick="app.setHighlight(3);">
+                        <label for="set3">\( B^c \)</label>
+                    </td>
+                    <td><input type="text" readonly id="p3" size="5"></td>
+                    <td><input type="text" readonly id="rf3" size="5"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="radio" id="set4" name="Subset" onclick="app.setHighlight(4);">
+                        <label for="set4">\( A \mid B \)</label>
+                    </td>
+                    <td><input type="text" readonly id="p4" size="5"></td>
+                    <td><input type="text" readonly id="rf4" size="5"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="radio" id="set5" name="Subset" onclick="app.setHighlight(5);">
+                        <label for="set5">\( B \mid A \)</label>
+                    </td>
+                    <td><input type="text" readonly id="p5" size="5"></td>
+                    <td><input type="text" readonly id="rf5" size="5"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="radio" id="set6" name="Subset" onclick="app.setHighlight(6);">
+                        <label for="set6">\( A^c \mid B \)</label>
+                    </td>
+                    <td><input type="text" readonly id="p6" size="5"></td>
+                    <td><input type="text" readonly id="rf6" size="5"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="radio" id="set7" name="Subset" onclick="app.setHighlight(7);">
+                        <label for="set7">\( B^c \mid A \)</label>
+                    </td>
+                    <td><input type="text" readonly id="p7" size="5"></td>
+                    <td><input type="text" readonly id="rf7" size="5"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="radio" id="set8" name="Subset" onclick="app.setHighlight(8);">
+                        <label for="set8">\( A \mid B^c \)</label>
+                    </td>
+                    <td><input type="text" readonly id="p8" size="5"></td>
+                    <td><input type="text" readonly id="rf8" size="5"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="radio" id="set9" name="Subset" onclick="app.setHighlight(9);">
+                        <label for="set9">\( B \mid A^c \)</label>
+                    </td>
+                    <td><input type="text" readonly id="p9" size="5"></td>
+                    <td><input type="text" readonly id="rf9" size="5"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="radio" id="set10" name="Subset" onclick="app.setHighlight(10);">
+                        <label for="set10">\( A^c \mid B^c \)</label>
+                    </td>
+                    <td><input type="text" readonly id="p10" size="5"></td>
+                    <td><input type="text" readonly id="rf10" size="5"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="radio" id="set11" name="Subset" onclick="app.setHighlight(11);">
+                        <label for="set11">\( B^c \mid A^c \)</label>
+                    </td>
+                    <td><input type="text" readonly id="p11" size="5"></td>
+                    <td><input type="text" readonly id="rf11" size="5"></td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td>Points</td>
+                    <td>&nbsp;</td>
+                    <td><input type="text" readonly id="nInput" size="5"></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<h4 class="ancillary">Description</h4>
+
+<p>In this app, \(A\) and \(B\) are rectangular events in a rectangular sample sapce \(S\). The sample space \( S \) is given the uniform distribution, so \( \P(E) = \text{area}(E) \big/ \text{area}(S) \) for every event \( E \). Events \( A \) and \( B \) can be moved by dragging an interior point of the rectangle, or resized by dragging the lower right corner of the rectangle. The probability table gives the events and their complements, and various events conditioned on other events. Of course, an ordinary probability can be thought of as a conditional probability, with the sample space \( S \) as the given event. When you click on an item in the list, the <em>effective sample space</em> is the region with either the light or dark shading, while the <em>effective event</em> is the region with the darker shading.  When the experiment runs, the outcomes (elements of \( S \)) are shown as red dots. The relative frequency of each event is given in the last column of the table. The coordinates of the random points are given in the data table, where \(S\) is the unit square \([0, 1]^2\) with orgin at the lower left corner.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Conditional Probability Experiment</li>
+	</ol>
+</footer>
+
+</body>
+</html>

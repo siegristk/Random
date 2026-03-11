@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Buffon's Coin Experiment</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, simulation, Buffon's coin problem, geometric probability, uniform distribution">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Buffon's coin experiment
+		"use strict";
+		class BuffonCoinApp extends SimApp {
+			constructor(name, r) {
+				super(name);
+				this.r = r;
+			}
+			initialize() {
+				super.initialize();
+				//Data table
+				this.dataTable = new DataTable(this.tables, 300, 100);
+				this.dataTable.setHeader(["Run", "X", "Y", "I"]);
+				//Parameter
+				this.rParam = new Parameter(this.toolbar, "<var>r</var>", "Radius");
+				this.rParam.setProperties(0, 0.5, 0.01, this.r);
+				this.rParam.setMethod(this.name, "reset()");
+				//Floor
+				this.floor = new Canvas(this.graphs, 200, 200, "Buffon's floor");
+				this.floor.setBounds(-0.5, 0.5, -0.5, 0.5);
+				this.floor.setMargins(20, 20, 20, 20);
+				this.floor.setBackground("yellow");
+				this.floor.makeRect(-0.5, -0.5, 0.5, 0.5, "black", "none");
+				this.coin = this.floor.makeCircle();
+				//Scatterplot
+				this.scatter = new Canvas(this.graphs, 200, 200, "Scatterplot");
+				this.scatter.setBounds(-0.5, 0.5, -0.5, 0.5);
+				this.scatter.setMargins(20, 20, 20, 20);
+				this.scatter.makeRect(-0.5, -0.5, 0.5, 0.5, "gray", "none");
+				this.crossBox = this.scatter.makeRect();
+				this.scatter.makeAxis(-0.5, 0, 0.1, HOR);
+				this.scatter.makeAxis(0, -0.5, 0.1, VERT);
+				//Distribution graph and table
+				this.distGraph = new DistGraph(this.graphs, 200, 200);
+				this.distTable = new DistTable(this.tables, 300, 100);
+				this.reset();
+			}
+			reset() {
+				this.r = this.rParam.getValue();
+				let r = this.r, p = 1 - (1 - 2 * r) ** 2;
+				//Floor
+				this.floor.clearCircle(this.coin);
+				//Scatterplot
+				this.scatter.reset(6);
+				this.scatter.setRect(this.crossBox, r - 0.5, r - 0.5, 0.5 - r, 0.5 - r, "blue", "none");
+				this.dist = new BernoulliDistribution(p);
+				this.distGraph.setDist(this.dist, "I");
+				this.distTable.setDist(this.dist, "I");
+				super.reset();
+			}
+			simulate() {
+				let r = this.r, x = -0.5 + Math.random(), y = -0.5 + Math.random(), cross = 1;
+				if (x > -0.5 + r && x < 0.5 - r && y > -0.5 + r && y < 0.5 - r) cross = 0;
+				this.floor.setCircle(this.coin, x, y, r, "gray", "red");
+				this.scatter.makeDot(x, y, 2, "red");
+				this.dist.setValue(cross);
+				this.distGraph.update();
+				this.distTable.update();
+				this.dataTable.setCurrentData([this.runCount, x.toFixed(2), y.toFixed(2), cross]);
+				super.simulate();
+			}
+		}
+		const app = new BuffonCoinApp("app", 0.1);
+		window.resizeTo(800, 600);
+	</script>
+</head>
+
+<body onload="app.initialize();" class="ancillary">
+
+<header>
+	<h3 class="ancillary">Buffon's Coin Experiment</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>Buffon's coin experiment is a random experiment in which a coin is tossed on a floor with square tiles. Random variables \(X\) and \(Y\) are the coordinates of the center of the coin relative to the center of the square. Random variable \(I\) indicates the event that the coin crosses a crack. This event is the complement of the square outlined in blue in the scatterplot. When the experiment runs, the points \((X, Y)\) are shown as red dots in the scatterplot, and \(X\), \(Y\), and \(I\) are recorded in the data table. The distribution of \(I\) is described in the distribution graph and table. The parameter of the process is the radius \(r\) of the coin, which can be varied with the scrollbar.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Buffon's Coin Experiment</li>
+	</ol>
+</footer>
+
+</body>
+</html>

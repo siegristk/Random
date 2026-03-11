@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Craps Experiment</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, simulation, craps, probability of winning, length of game">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Craps experiment
+		"use strict";
+		class ShooterDistribution extends Distribution {
+			constructor() {
+				super(1, 12, 1, DISC);
+			}
+			density(n) {
+				if (n == 1) return 1 / 3;
+				else if (n > 1) return (1 / 24) * (3 / 4) ** (n - 2) + (5 / 81) * (13 / 18) ** (n - 2) + (55 / 648) * (25 / 36) ** (n - 2);
+				else return 0;
+			}
+			mode() {
+				return 1;
+			}
+			mean() {
+				return 557 / 165;
+			}
+			variance() {
+				return 245672 / 27226;
+			}
+		}
+		class CrapsApp extends SimApp {
+			constructor(name) {
+				super(name);
+			}
+			initialize() {
+				super.initialize();
+                //Dice
+                this.crapsTable = new DiceBoard(this.graphs);
+                this.crapsTable.setDice(4);
+				this.crapsTable.dice[2].backColor = "blue";
+				this.crapsTable.dice[3].backColor = "blue";
+				//Select
+				this.betSelect = new Select(this.toolbar, "Bet");
+				const values = ["pass", "noPass", "field", "craps", "craps2", "craps3", "craps12", "seven", "eleven", "big6", "big8", "hardway4", "hardway6", "hardway8", "hardway10"];
+				const bets = ["Pass", "Don't Pass", "Field", "Craps", "Craps 2", "Craps 3", "Craps 12", "Seven", "Eleven", "Big 6", "Big 8", "Hardway 4", "Hardway 6", "Hardway 8", "Hardway 10"];
+				this.betSelect.setOptions(values, bets, 0);
+				this.betSelect.setMethod(this.name, "reset()");
+				//Distributions
+                this.wGraph = new DistGraph(this.graphs, 300, 200);
+                this.wTable = new DistTable(this.tables, 300, 125);
+                this.nGraph = new DistGraph(this.graphs, 300, 200);
+                this.nTable = new DistTable(this.tables, 300, 125);
+				//Data table
+				this.dataTable = new DataTable(this.tables, 450, 125);
+				this.dataTable.setHeader(["Run", "X", "Y", "U", "V", "N", "W"]);
+				this.reset();
+			}
+			reset() {
+				this.crapsTable.reset();
+				let prob = [];
+                switch (this.betSelect.getValue()) {
+				case "pass": 
+					prob = [251 / 495, 0, 244 / 495];
+					this.wDist = new Distribution(-1, 1, 1, DISC, [251 / 495, 0, 244 / 495]);
+					this.nDist = new ShooterDistribution();
+					break;
+				case "noPass": 
+					prob = [244 / 495, 1 / 36, 949 / 1980];
+					this.wDist = new Distribution(-1, 1, 1, DISC, prob);
+					this.nDist = new ShooterDistribution();
+					break;
+				case "field": 
+					prob = [5 / 9, 0, 7 / 18, 1 / 18];
+					this.wDist = new Distribution(-1, 2, 1, DISC, prob);
+					this.nDist = new PointMassDistribution(1);
+					break;
+				case "craps":
+					prob = [8 / 9, 0, 0, 0, 0, 0, 0, 0, 1 / 9];
+					this.wDist = new Distribution(-1, 7, 1, DISC, prob);
+					this.nDist = new PointMassDistribution(1);
+					break;
+				case "craps2":
+					prob = [35 / 36, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 / 36];
+					this.wDist = new Distribution(-1, 30, 1, DISC, prob);
+					this.nDist = new PointMassDistribution(1);
+					break;
+				case "craps3":
+					prob = [17 / 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 / 18];
+					this.wDist = new Distribution(-1, 15, 1, DISC, prob);
+					this.nDist = new PointMassDistribution(1);
+					break;
+				case "craps12":
+					prob = [35 / 36, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 / 36];
+					this.wDist = new Distribution(-1, 30, 1, DISC, prob);
+					this.nDist = new PointMassDistribution(1);
+					break;
+				case "seven":
+					prob = [5 / 6, 0, 0, 0, 0, 1 / 6];
+					this.wDist = new Distribution(-1, 4, 1, DISC, prob);
+					this.nDist = new PointMassDistribution(1);
+					break;
+				case "eleven":
+					prob = [17 / 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 / 18];
+					this.wDist = new Distribution(-1, 15, 1, DISC, prob);
+					this.nDist = new PointMassDistribution(1);
+					break;
+				case "big6":
+					prob = [6 / 11, 0, 5 / 11];
+					this.wDist = new Distribution(-1, 1, 1, DISC, prob);
+					this.nDist = new GeometricDistribution(11 / 36);
+					break;
+				case "big8":
+					prob = [6 / 11, 0, 5 / 11];
+					this.wDist = new Distribution(-1, 1, 1, DISC, prob);
+					this.nDist = new GeometricDistribution(11 / 36);
+					break;
+				case "hardway4":
+					prob = [8 / 9, 0, 0, 0, 0, 0, 0, 0, 1 / 9];
+					this.wDist = new Distribution(-1, 7, 1, DISC, prob);
+					this.nDist = new GeometricDistribution(2 / 9);
+					break;
+				case "hardway6":
+					prob = [10 / 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 / 11];
+					this.wDist = new Distribution(-1, 9, 1, DISC, prob);
+					this.nDist = new GeometricDistribution(1 / 4);
+					break;
+				case "hardway8":
+					prob = [10 / 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 / 11];
+					this.wDist = new Distribution(-1, 9, 1, DISC, prob);
+					this.nDist = new GeometricDistribution(1 / 4)
+					break;
+				case "hardway10":
+					prob = [8 / 9, 0, 0, 0, 0, 0, 0, 0, 1 / 9];
+					this.wDist = new Distribution(-1, 7, 1, DISC, prob);
+					this.nDist = new GeometricDistribution(2 / 9);
+					break;
+				}
+				this.wGraph.setDist(this.wDist, "W");
+				this.wTable.setDist(this.wDist, "W");
+				this.nGraph.setDist(this.nDist, "N");
+				this.nTable.setDist(this.nDist, "N");
+				super.reset();
+			}
+			simulate() {
+				this.crapsTable.reset();
+				const fair = [1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6];
+				let x = this.crapsTable.rollDie(0, fair), y = this.crapsTable.rollDie(1, fair), z = x + y;
+				let u = x, v = y, z1 = u + v, n = 1, w = -2;
+				switch(this.betSelect.getValue()) {
+					case "pass":
+						if (z == 7 || z == 11) w = 1;
+						else if (z == 2 || z == 3 || z == 12) w = -1;
+						else {
+							while (w == -2) {
+								n++;
+								u = this.crapsTable.rollDie(2, fair); v = this.crapsTable.rollDie(3, fair);
+								z1 = u + v;
+								if (z1 == z) w = 1;
+								else if (z1 == 7) w = -1;
+							}
+						}
+						break;
+					case "noPass":
+						if (z == 7 || z == 11) w = -1;
+						else if (z == 2 || z == 3) w = 1;
+						else if (z == 12) w = 0;
+						else {
+							while (w == -2) {
+								n++;
+								u = this.crapsTable.rollDie(2, fair); v = this.crapsTable.rollDie(3, fair);
+								z1 = u + v;
+								if (z1 == z) w = -1;
+								else if (z1 == 7) w = 1;
+							}
+						}
+						break;
+					case "field":
+						if (z == 3 || z == 4 || z == 9 || z == 10 || z == 11) w = 1;
+						else if (z == 2 || z == 12) w = 2;
+						else w = -1;
+						break;
+					case "craps":
+						if (z == 2 || z == 3 || z == 12) w = 7;
+						else w = -1;
+						break;
+					case "craps2":
+						if (z == 2) w = 30;
+						else w = -1;
+						break;
+					case "craps3":
+						if (z == 3) w = 15;
+						else w = -1;
+						break;
+					case "craps12":
+						if (z == 12) w = 30;
+						else w = -1;
+						break;
+					case "seven":
+						if (z == 7) w = 4;
+						else w = -1;
+						break;
+					case "eleven":
+						if (z == 11) w = 15;
+						else w = -1;
+						break;
+					case "big6":
+						if (z == 7) w = -1;
+						else if (z == 6) w = 1;
+						else {
+							while (w == -2) {
+								n++;
+								u = this.crapsTable.rollDie(2, fair); v = this.crapsTable.rollDie(3, fair);
+								z1 = u + v;
+								if (z1 == 7) w = -1;
+								else if (z1 == 6) w = 1;
+							}
+						}
+						break;
+					case "big8":
+						if (z == 7) w = -1;
+						else if (z == 8) w = 1;
+						else {
+							while (w == -2) {
+								n++;
+								u = this.crapsTable.rollDie(2, fair); v = this.crapsTable.rollDie(3, fair);
+								z1 = u + v;
+								if (z1 == 7) w = -1;
+								else if (z1 == 8) w = 1;
+							}
+						}
+						break;
+					case "hardway4":
+						if (x == 2 && y == 2) w = 7;
+						else if (z == 7 || z == 4) w = -1;
+						else {
+							while(w == -2) {
+								n++;
+								u = this.crapsTable.rollDie(2, fair); v = this.crapsTable.rollDie(3, fair);
+								z1 = u + v;
+								if (u == 2 && v == 2) w = 7;
+								else if (z1 == 7 || z1 == 4) w = -1;
+							}
+						}
+						break;
+					case "hardway6":
+						if (x == 3 && y == 3) w = 9;
+						else if (z == 7 || z == 6) w = -1;
+						else {
+							while(w == -2) {
+								n++;
+								u = this.crapsTable.rollDie(2, fair); v = this.crapsTable.rollDie(3, fair);
+								z1 = u + v;
+								if (u == 3 && v == 3) w = 9;
+								else if (z1 == 7 || z1 == 6) w = -1;
+							}
+						}
+						break;
+					case "hardway8":
+						if (x == 4 && y == 4) w = 9;
+						else if (z == 7 || z == 8) w = -1;
+						else {
+							while(w == -2) {
+								n++;
+								u = this.crapsTable.rollDie(2, fair); v = this.crapsTable.rollDie(3, fair);
+								z1 = u + v;
+								if (u == 4 && v == 4) w = 9;
+								else if (z1 == 7 || z1 == 8) w = -1;
+							}
+						}
+						break;
+					case "hardway10":
+						if (x == 5 && y == 5) w = 7;
+						else if (z == 7 || z == 10) w = -1;
+						else {
+							while(w == -2) {
+								n++;
+								u = this.crapsTable.rollDie(2, fair); v = this.crapsTable.rollDie(3, fair);
+								z1 = u + v;
+								if (u == 5 && v == 5) w = 7;
+								else if (z1 == 7 || z1 == 10) w = -1;
+							}
+						}
+						break;
+				}
+				this.wDist.setValue(w);
+				this.wGraph.update();
+				this.wTable.update();
+				this.nDist.setValue(n);
+				this.nGraph.update();
+				this.nTable.update();
+				this.dataTable.setCurrentData([this.runCount, x, y, u, v, n, w]);
+				super.simulate();
+			}
+		}
+		const app = new CrapsApp("app");
+		window.resizeTo(800, 700);
+	</script>
+</head>
+
+<body class="ancillary" onload="app.initialize();">
+
+<header>
+	<h3 class="ancillary">Craps Experiment</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>In the game of <dfn>craps</dfn>, the shooter rolls a pair of fair die. The rules are as follows:</p>
+
+<ol>
+	<li>If the shooter rolls a sum of 7 or 11 on the first roll, she wins.</li>
+	<li>If the shooter rolls a sum of 2, 3, or 12 on the first roll, she loses.</li>
+	<li>If the shooter rolls a sum of 4, 5, 6, 8, 9, or 10, this number becomes the shooter's <dfn>point</dfn>. The shooter continues to roll the dice until the sum is either the point (in which case she wins) or 7 (in which case she loses).</li>
+</ol>
+
+<p>Any of the following bets can be selected from the list box:</p>
+
+<ol>
+	<li><dfn>Pass</dfn>. This is the bet that the shooter will win, and pays \(1:1\).</li>
+	<li><dfn>Don't Pass</dfn>. This is the bet that the shooter will lose, except that an initial roll of 12 is excluded (that is, the shooter loses, but the don't pass bettor neither wins nor loses). The bet pays \(1:1\).</li>
+	<li><dfn>Field</dfn>. This. is a bet on a single throw. It pays \(1:1\) if 3, 4, 9, 10, or 11 is thrown, \(2:1\) if 2 or 12 is thrown, and loses otherwise.</li>
+	<li><dfn>Craps</dfn>. This is a bet that 2, 3, or 12 will come up on a single throw, and pays \(7:1\).</li>
+	<li><dfn>Craps 2</dfn>. This is a bet that 2 will come up on a single throw, and pays \(30:1\).</li>
+	<li><dfn>Craps 3</dfn>. This is a bet that 3 will come up on a single throw, and pays \(15:1\).</li>
+	<li><dfn>Craps 12</dfn>. This is a bet that 12 will come up on a single throw, and pays \(30:1\).</li>
+	<li><dfn>Seven</dfn>. This is a bet that 7 will come up on a single throw, and pays \(4:1\).</li>
+	<li><dfn>Eleven</dfn>. This is a bet that 11 will come up on a single throw, and pays \(15:1\).</li>
+	<li><dfn>Big 6</dfn>. This is a bet that 6 will be thrown before 7, and pays \(1:1\).</li>
+	<li><dfn>Big 8</dfn>. This is a bet that 8 will be thrown before 7, and pays \(1:1\).</li>
+	<li><dfn>Hardway 4</dfn>. This is a bet that \((2, 2)\)	will be thrown before 7 or any other 4, and pays \(7:1\).</li>
+	<li><dfn>Hardway 6</dfn>. This is a bet that \((3, 3)\)	will be thrown before 7 or any other 6, and pays \(9:1\).</li>
+	<li><dfn>Hardway 8</dfn>. This is a bet that \((4, 4)\)	will be thrown before 7 or any other 8, and pays \(9:1\).</li>
+	<li><dfn>Hardway 10</dfn>. This is a bet that \((5, 5)\) will be thrown before 7 or any other 10, and pays \(7:1\).</li>
+</ol>
+
+<p>Random variable \((X, Y)\) denotes the outcome of the first roll and random variable \((U, V)\) denotes the outcome of the last roll. The first roll is shown by the red dice and the last roll, when there are two or more rolls, by the blue dice. Random variable \(W\) gives the net winnings for the selected unit bet and random variable \(N\) is the number of rolls for the selected bet.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Craps Experiment</li>
+	</ol>
+</footer>
+
+</body>
+</html>

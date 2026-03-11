@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Ball and Urn Experiment</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, simulation, binomial distribution, hypergeometric distribution, ball and urn model, point estimation">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Ball and urn app
+		"use strict";
+		class BallUrnApp extends SimApp {
+			constructor(name) {
+				super(name);
+				this.N = 50;
+				this.m = 50;
+				this.n = 10;
+				this.r = 25;
+			}
+			initialize() {
+				super.initialize();
+				//Data table
+				this.dataTable = new DataTable(this.tables, 300, 100);
+				this.dataTable.setHeader(["Run", "Y", "U", "V"]);
+				//Parameters
+				const parameters = this.addToolbar();
+				this.mParam = new Parameter(parameters, "<var>m</var>", "Population size");
+				this.mParam.setProperties(1, 100, 1, this.m);
+				this.mParam.setMethod(this.name, "reset()");
+				this.nParam = new Parameter(parameters, "<var>n</var>", "Sample size");
+				this.nParam.setProperties(1, 50, 1, 10);
+				this.nParam.setMethod(this.name, "reset()");
+				this.rParam = new Parameter(parameters, "<var>r</var>", "Red balls");
+				this.rParam.setProperties(0, 100, 1, 25);
+				this.rParam.setMethod(this.name, "reset()");
+				//Model
+				//Select
+				this.modelSelect = new Select(parameters, "Sampling method");
+				this.modelSelect.setOptions(["without", "with"], ["Without replacement", "With replacement"], 0);
+				this.modelSelect.setMethod(this.name, "reset()");
+				//Urn and balls
+				this.urn = new Urn(this.graphs);
+				//Distribution graph and table
+				this.distGraph = new DistGraph(this.graphs, 400, 200);
+				this.distTable = new DistTable(this.tables, 300, 100);
+				this.reset();
+			}
+			reset() {
+				let N = this.N, m = this.mParam.getValue(), n = this.nParam.getValue(), r = this.rParam.getValue();
+				let model = this.modelSelect.getValue();
+				//Parameters
+				if (model == "with") this.nParam.setProperties(1, 50, 1, n);
+				else if (n > m) this.nParam.setProperties(1, m, 1, Math.round(m / 2));
+				else this.nParam.setProperties(1, Math.min(m, N), 1, n);
+				if (r > m) this.rParam.setProperties(0, m, 1, Math.round(m / 2));
+				else this.rParam.setProperties(0, m, 1, r);
+				this.m = this.mParam.getValue();
+				this.n = this.nParam.getValue();
+				this.r = this.rParam.getValue();
+				//Urn
+				this.urn.setBalls(n);
+				this.pop = [];
+				for (let i = 0; i < m; i++) this.pop[i] = i + 1;
+				//Distribution
+				if (model == "with") this.dist = new BinomialDistribution(this.n, this.r / this.m);
+				else this.dist = new HypergeometricDistribution(this.m, this.r, this.n);
+				this.distGraph.setDist(this.dist, "Y");
+				this.distTable.setDist(this.dist, "Y");
+				super.reset();
+			}
+			simulate(){
+				let s = sample(this.pop, this.n, this.type);
+				let y = 0;
+				for (let i = 0; i < this.n; i++) {
+					if (s[i] <= this.r) {
+						y++;
+						this.urn.setBall(i, s[i], "red");
+					}
+					else this.urn.setBall(i, s[i], "green");
+				}
+				this.dist.setValue(y);
+				let u = this.m * y / this.n;
+				let v = this.n * this.r / y;
+				this.distGraph.update();
+				this.distTable.update();
+				this.dataTable.setCurrentData([this.runCount, y, u.toFixed(1), v.toFixed(1)]);
+				super.simulate();
+			}
+		}
+		const app = new BallUrnApp("app");
+		window.resizeTo(900, 600);
+	</script>
+
+</head>
+
+<body onload="app.initialize();" class="ancillary">
+
+<h3 class="ancillary">Ball and Urn Experiment</h3>
+
+<div id="app" class="app"></div>
+
+<h4>Description</h4>
+
+<p>The experiment consists of selecting \(n\) balls at random from an urn with \(m\) balls, \(r\) of which are red and the other \(m - r\) green. Random variable \(Y\) gives the number of red balls in the sample. Random variable \(U = m Y / n\) is the standard estimate of \(r\) with \(m\) known, and random variable \(V = n r / Y\) is the standard estimate of \(m\) with \(r\) known. The variables \(Y\), \(U\), and \(V\) are recorded in the data table.</p>
+
+<p>Either of two sampling models can be selected with the list box: without replacement and with replacement. In the first case, \(Y\) has the hypergeometric distribution with parameter \(m\), \(n\), and \(r\), and in the second case \(Y\) has the binomial distribution with parameters \(n\) and \(r / m\). The distribution of \(Y\) is described in the distribution graph and table. The parameters \(m\), \(r\), and \(n\) can be varied with the input controls.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Ball and Urn Experiment</li>
+	</ol>
+</footer>
+
+</body>
+</html>

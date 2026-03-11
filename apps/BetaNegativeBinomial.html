@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+	<title>Beta-Negative Binomial Experiment</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, simulation, beta distribution, beta-negative binomial distribution, Bernoulli trials, conditional distribution">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		class BetaNegativeBinomialApp extends SimApp {
+			constructor(name, a, b, k) {
+				super(name);
+				this.a = a;
+				this.b = b;
+				this.k = k;
+			}
+			initialize() {
+                super.initialize();
+                this.dataTable = new DataTable(this.tables, 300, 100);
+				this.dataTable.setHeader(["Run", "P", "V"]);
+				this.negBinTable = new DistTable(this.tables, 300, 100);
+				//Parameters
+				const parameters = this.addToolbar();
+				this.kParam = new Parameter(parameters, "<var>k</var>", "Successes");
+				this.kParam.setProperties(1, 10, 1, this.k);
+				this.kParam.setMethod(this.name, "reset()");
+				this.aParam = new Parameter(parameters, "<var>a</var>", "Left beta parameter");
+				this.aParam.setProperties(3, 10, 0.1, this.a);
+				this.aParam.setMethod(this.name, "reset()");
+				this.bParam = new Parameter(parameters, "<var>b</var>", "Right beta parameter");
+				this.bParam.setProperties(3, 10, 0.1, this.b);
+				this.bParam.setMethod(this.name, "reset()");
+				//Graphs
+				this.betaGraph = new DistGraph(this.graphs, 300, 200);
+				this.timeline = new Timeline(this.graphs, 700, "Timeline");
+				this.timeline.lm = 30;
+				this.negBinGraph = new DistGraph(this.graphs, 700, 200);
+				this.reset();
+			}
+			reset() {
+                //Parameters
+				this.a = this.aParam.getValue();
+				this.b = this.bParam.getValue();
+				this.k = this.kParam.getValue();
+                //Didstribtion
+				this.betaDist = new BetaDistribution(this.a, this.b);
+				this.negBinDist = new BetaNegativeBinomialDistribution(this.a, this.b, this.k);
+                this.negBinDist.min = 1;
+                this.betaGraph.setDist(this.betaDist, "P");
+				this.negBinGraph.setDist(this.negBinDist, "V");
+				this.negBinTable.setDist(this.negBinDist, "V");
+                //Timeline
+                let m = this.negBinDist.max;
+				this.timeline.setParameters(1, m, 1);
+                super.reset();
+			}
+			simulate() {
+				this.timeline.reset();
+				this.betaDist.data.reset();
+				let p = this.betaDist.simulate(), time = 0, sum = 0;
+				this.betaGraph.update();
+				while (sum < this.k) {
+					time++;
+					if (Math.random() < p) {
+						sum++;
+						this.timeline.addPoint(time, "red");
+					}
+					else this.timeline.addPoint(time, "green");
+				}
+				this.negBinDist.setValue(time);
+				this.dataTable.setCurrentData([this.runCount, p.toFixed(2), time]);
+				this.negBinGraph.update();
+				this.negBinTable.update();
+				super.simulate();
+			}
+		}
+		const app = new BetaNegativeBinomialApp("app", 3, 3, 1);
+		window.resizeTo(800, 800);
+	</script>
+</head>
+
+<body class="ancillary" onload="app.initialize();">
+
+<header>
+	<h3 class="ancillary">Beta-Negative Binomial Experiment</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>In this experiment, a random probability \( P \) has a beta distribution with left parameter \( a \) and right parameter \( b \). Then, Bernoulli trials with success probabiity  \( P \) are performed. Random variable \( V \) is the trial number of the \( k \)th success, and has the beta-negative binomial distribution with parameters \( k \), \( a \), and \( b \). The timeline graph in the middle shows the sequence of Bernoulli trials, with each success as a red dot and each failure as a green dot. Variables \(P\) and \(Y\) are recorded in the data table. The distribution of \(P\) is described in the top graph, and the distribution of \(Y\) is described in the second distribution graph and the distribution table. The parameters \( k \), \( a \), and \( b \) can be varied with input controls.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Negative Binomial Experiment</li>
+	</ol>
+</footer>
+
+</body>
+</html>

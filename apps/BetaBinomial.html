@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Beta-Binomial Experiment</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, simulation, beta distribution, beta-binomial distribution, conditional distribution">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Beta-Binomial Experiment
+		"use strict";
+		class BetaBinomialApp extends SimApp {
+			constructor(name, n, a, b) {
+				super(name);
+				this.n = n;
+				this.a = a;
+				this.b = b;
+			}
+			initialize() {
+				super.initialize();
+				//Data table
+				this.dataTable = new DataTable(this.tables, 400, 100);
+				this.dataTable.setHeader(["Run", "P", "Y", "M", "Z"]);
+				//Parameters
+				const parameters = this.addToolbar();
+				this.nParam = new Parameter(parameters, "<var>n</var>", "Number of trials");
+				this.nParam.setProperties(1, 60, 1, this.n);
+				this.nParam.setMethod(this.name, "reset()");
+				this.aParam = new Parameter(parameters, "<var>a</var>", "Left beta parameter");
+				this.aParam.setProperties(0.5, 10, 0.1, this.a);
+				this.aParam.setMethod(this.name, "reset()");
+				this.bParam = new Parameter(parameters, "<var>b</var>", "Right beta parameter");
+				this.bParam.setProperties(0.5, 10, 0.1, this.b);
+				this.bParam.setMethod(this.name, "reset()");
+				//Timeline
+				this.timeline = new Timeline(this.graphs, 700, "Timeline");
+				//Distributions
+				this.betaPlot = new DistGraph(this.graphs, 300, 200);
+				this.successPlot = new DistGraph(this.graphs, 300, 200);
+				this.successTable = new DistTable(this.tables, 300, 100);
+				this.reset();
+			}
+			reset() {
+				//Parameters
+				this.n = this.nParam.getValue();
+				this.a = this.aParam.getValue();
+				this.b = this.bParam.getValue();
+				//Timeline
+				this.timeline.setParameters(1, this.n, 1);
+				//Distributions
+				this.betaDist = new BetaDistribution(this.a, this.b);
+				this.successDist = new BetaBinomialDistribution(this.a, this.b, this.n);
+				this.betaPlot.setDist(this.betaDist, "P");
+				this.successPlot.setDist(this.successDist, "Y");
+				this.successTable.setDist(this.successDist, "Y");
+				super.reset();
+			}
+			simulate() {
+				let y = 0, n = this.n, a = this.a, b = this.b;
+				this.betaDist.data.reset();
+				let p = this.betaDist.simulate();
+				this.betaPlot.update();
+				this.timeline.reset();
+				for (let i = 1; i <= n; i++) {
+					if (Math.random() < p) {
+						y++;
+						this.timeline.addPoint(i, "red");
+					}
+					else this.timeline.addPoint(i, "green");
+				}
+				let m = y / n, z = (a + y) / (a + b + n)
+				this.successDist.setValue(y);
+				this.successPlot.update();
+				this.successTable.update();
+				this.dataTable.setCurrentData([this.runCount, p.toFixed(2), y, m.toFixed(2), z.toFixed(2)]);
+				super.simulate();
+			}
+		}
+		const app = new BetaBinomialApp("app", 10, 1, 1);
+		window.resizeTo(800, 600);
+	</script>
+</head>
+
+<body class="ancillary" onload="app.initialize();">
+
+<header>
+	<h3 class="ancillary">Beta-Binomial Experiment</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<p>In the beta-binomial experiment, a random probability \( P \) has a beta distribution with left parameter \( a \) and right parameter \( b \). Given \( P = p \), we conduct \( n \) Bernoulli trials with success probability \( p \).  Random variable \( Y \) is the number of successes, and has the beta-binomial distribution with parameters \( n \), \( a \), and \( b \). The outcomes of the trials are shown in the timeline graph (red for success and green for failure). Random variable \( M = Y / n \) is the proportion of successes and random variable \( Z = (a + Y) / (a + b + n) \) is the Bayesian estimator of the success parameter \( p \) when \( p \) is modeled by \( P \). As a function of \( n \), it is a martingale. The variables \(P\), \(Y\), \(M\), and \(Z\) are recorded in the data table. The distribution of \(P\) is described in the first distribution graph, and the distribution of \(Y\) is described in the second distribution graph and in the distribution table. The parameters \( n \), \( a \), and \( b \) can be varied with input controls.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Beta-Binomial Experiment</li>
+	</ol>
+</footer>
+
+</body>
+</html>

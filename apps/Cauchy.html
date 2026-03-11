@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Cauchy Experiment</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, simulation, Cauchy distribution, Cauchy experiment">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Cauchy Experiment
+		"use strict";
+		class CauchyApp extends SimApp {
+			constructor(name, a, b) {
+				super(name);
+				this.a = a;
+				this.b = b;
+			}
+			initialize() {
+				super.initialize();
+				//Parameters 
+				this.aParam = new Parameter(this.toolbar, "<var>a</var>", "Location");
+				this.aParam.setProperties(-10, 10, 0.1, this.a);
+				this.aParam.setMethod(this.name, "reset()");
+				this.bParam = new Parameter(this.toolbar, "<var>b</var>", "Scale");
+				this.bParam.setProperties(0.5, 10, 0.1, this.b);
+				this.bParam.setMethod(this.name, "reset()");
+				//Graphs
+				this.distGraph = new DistGraph(this.graphs, 500, 200);
+				this.lightGraph = new Canvas(this.graphs, 500, 200, "Light source and wall");
+				//Tables
+				this.dataTable = new DataTable(this.tables, 300, 100);
+				this.dataTable.setHeader(["Run", "\u0398", "X"]);
+				this.distTable = new DistTable(this.tables, 300, 100);
+				this.reset();
+			}
+			reset() {
+				//Parameters
+				this.a = this.aParam.getValue();
+				this.b = this.bParam.getValue();
+				let a = this.a, b = this.b
+				//Distribution
+				this.cauchyDist = new CauchyDistribution(a, b);
+				this.distGraph.setDist(this.cauchyDist, "X");
+				this.distTable.setDist(this.cauchyDist, "X");
+				//Light graph
+				this.lightGraph.setBounds(this.cauchyDist.min, this.cauchyDist.max, 0, b);
+				this.lightGraph.reset(1);
+				this.lightGraph.makeLine(this.cauchyDist.min, b, this.lightGraph.xScale(this.lightGraph.width), b, "black");
+				this.lightGraph.makeLine(a, 0, a, b, "gray");
+				this.lightGraph.makeText(b.toFixed(1), a, 0.5 * b, RIGHT, 10, "normal");
+				this.lightGraph.makeText(a.toFixed(1), a, b, ABOVE, 10, "normal");
+				this.lightGraph.makeDot(a, 0, 5, "red");
+				this.light = this.lightGraph.makeLine(a, 0, b, 0, "none");
+				this.spot = this.lightGraph.makeDot(b, 0, 4, "none");
+				super.reset();
+			}
+			simulate() {
+				let a = this.a, b = this.b;
+				let theta = -Math.PI / 2 + Math.random() * Math.PI;
+				let x = a + b * Math.tan(theta);
+				this.cauchyDist.setValue(x);
+				this.distGraph.update();
+				this.distTable.update();
+				this.lightGraph.setLine(this.light, a, 0, x, b, "red");
+				this.lightGraph.setDot(this.spot, x, b, 4, "red");
+				this.dataTable.setCurrentData([this.runCount, theta.toFixed(2), x.toFixed(2)]);
+				super.simulate();
+			}
+		}
+		const app = new CauchyApp("app", 0, 1);
+		window.resizeTo(700, 700);
+	</script>
+</head>
+
+<body class="ancillary" onload="app.initialize();">
+
+<header>
+	<h3 class="ancillary">Cauchy Experiment</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>A light source is located \( b \) units directly across from position \( a \) on an infinite, straight wall. The random experiment consists of shining the light on the wall at an angle \( \Theta \) with the perpendicular, where \(\Theta\) is uniformly distributed on the interval \( \left(-\frac{\pi}{2}, \frac{\pi}{2}\right) \). The position \( X = a + b \tan(\Theta) \) of the light beam on the wall has the Cauchy distribution with location parameter \( a \) and scale parameter \( b \). The parameters \( a \) and \( b \) can be varied with the input controls.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Cauchy Experiment</li>
+	</ol>
+</footer>
+
+</body>
+</html>

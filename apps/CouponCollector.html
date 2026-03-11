@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Coupon Collector Experiment</title>
+	<meta name="Author " content="Kyle Siegrist">
+	<meta name="keywords" content="probability, statistics, simulation, coupon collector problem">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Coupon Collector Experiment
+		"use strict";
+		class CouponCollectorApp extends SimApp {
+			constructor(name, m, k) {
+				super(name);
+				this.m = m;
+				this.k = k;
+			}
+			initialize() {
+				super.initialize();
+				//Data table
+				this.dataTable = new DataTable(this.tables, 300, 100);
+				this.dataTable.setHeader(["Run", "W", "X"]);
+				//Parameter
+				this.mParam = new Parameter(this.toolbar, "<var>m</var>", "Populatioon size");
+				this.mParam.setProperties(1, 25, 1, this.m);
+				this.mParam.setMethod(this.name, "reset()");
+				this.kParam = new Parameter(this.toolbar, "<var>k</var>", "Number of distinct");
+				this.kParam.setProperties(1, this.m, 1, this.k);
+				this.kParam.setMethod(this.name, "reset()");
+				//Balls
+				this.urn = new Urn(this.graphs);
+				//Distribution graph and table
+				this.distGraph = new DistGraph(this.graphs, 400, 200);
+				this.distTable = new DistTable(this.tables, 300, 100);
+				this.reset();
+			}
+			reset() {
+				//Parameters
+				this.m = this.mParam.getValue(); this.k = this.kParam.getValue();
+				if (this.m < this.k) this.kParam.setProperties(1, this.m, 1, this.m);
+				else this.kParam.setProperties(1, this.m, 1, this.k);
+				this.k = this.kParam.getValue();
+				let m = this.m, k = this.k;
+				//Urn
+				this.urn.setBalls(m);
+				for (let i = 0; i < m; i++) this.urn.setBall(i, 0, "gray");
+				this.dist = new CouponDistribution(m, k);
+				this.distGraph.setDist(this.dist, "W");
+				this.distTable.setDist(this.dist, "W");
+				super.reset();
+			}
+			simulate() {
+				let m = this.m, k = this.k, count = [], sample = [], distinct = 0, coupon = 0, coupons = 0;
+				for (let i = 0; i < m; i++) {
+					count[i] = 0;
+					this.urn.setBall(i, 0, "gray");
+				}
+				while (distinct < k) {
+					coupon = Math.floor(m * Math.random());
+					sample.push(coupon + 1);
+					coupons++;
+					if (count[coupon] == 0) distinct++;
+					count[coupon]++;
+				}
+				for (let i = 0; i < m; i++) if (count[i] > 0) this.urn.setBall(i, count[i], "red");
+				this.dist.setValue(coupons);
+				this.distGraph.update();
+				this.distTable.update();
+				this.dataTable.setCurrentData([this.runCount, coupons, "(" + sample + ")"]);
+				super.simulate();
+			}
+		}
+		const app = new CouponCollectorApp("app", 20, 10);
+		window.resizeTo(750, 600);
+	</script>
+</head>
+
+<body class="ancillary" onload="app.initialize();">
+
+<header>
+	<h3 class="ancillary">Coupon Collector Experiment</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>The experiment consists of sampling with replacement from the population \(\{1, 2, \ldots, m\}\) until \(k\) distinct values are obtained. In the app, the population elements are balls, and the label on a ball indicates the number of times the ball has been selected in the sample. Random variable \(W\) gives the sample size needed and is recorded in the data table, along with the sample \(\boldsymbol{X}\). The distribution of \(W\) is described in the distribution graph and table. The parameters \(m\) and \(k\) can be varied with the input controls.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Coupon Collector Experiment</li>
+	</ol>
+</footer>
+
+</body>
+</html>

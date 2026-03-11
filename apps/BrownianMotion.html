@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Standard Brownian Motion</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, simulation, Brownian motion, normal distribution, arcsine distribution, half-normal distribution">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Brownian Motion Experiment
+		"use strict";
+		class BrownianMotionApp extends SimApp {
+			constructor(name, t) {
+				super(name);
+				this.t = t;
+			}
+            initialize() {
+				super.initialize();
+				//Data table
+				this.dataTable = new DataTable(this.tables, 400, 125);
+                this.dataTable.setHeader(["Run", "X", "Y", "Z"]);
+				//Parameter
+				this.tParam = new Parameter(this.toolbar, "<var>t</var>", "Time");
+				this.tParam.setProperties(0.5, 5, 0.1, this.t);
+                this.tParam.setMethod(this.name, "reset()");
+                //Random variable select
+                this.rvSelect = new Select(this.toolbar, "Random variable");
+                this.rvSelect.setOptions(["X", "Y", "Z"], ["X: Final position", "Y: Max position", "Z: Last zero"], 0);
+                this.rvSelect.setMethod(this.name, "setDist()");
+                //Path graph
+				this.pathGraph = new Canvas(this.graphs, 400, 300, "Path");
+                this.pathGraph.lm = 30;
+                this.path = this.pathGraph.makePath();
+                this.finalDot = this.pathGraph.makeDot(0, 0, 1, "none");
+                this.maxDot = this.pathGraph.makeDot(0, 0, 1, "none");
+                this.zeroDot = this.pathGraph.makeDot(0, 0, 1, "none")
+                //Distribution 
+				this.distGraph = new DistGraph(this.graphs, 400, 300);
+				this.distTable = new DistTable(this.tables, 400, 125);
+                this.reset();
+            }
+            reset() {
+                this.t = this.tParam.getValue();
+                //Path graph
+                let t = this.t, xMax = 3 * Math.sqrt(t);
+                this.pathGraph.reset(6);
+                this.pathGraph.draw(this.path, "");
+                this.pathGraph.clearDot(this.finalDot);
+                this.pathGraph.clearDot(this.maxDot);
+                this.pathGraph.clearDot(this.zeroDot);
+                this.pathGraph.setBounds(0, t, -xMax, xMax);
+                this.pathGraph.makeAxis(0, 0, t / 20, HOR);
+                this.pathGraph.makeText("0", 0, 0, BELOW);
+                this.pathGraph.makeText(t.toFixed(1), t, 0, BELOW);
+                this.pathGraph.makeAxis(0, -xMax, xMax / 10, VERT);
+                this.pathGraph.makeText((-xMax).toFixed(1), 0, -xMax, LEFT);
+                this.pathGraph.makeText(xMax.toFixed(1), 0, xMax, LEFT);
+                //Distributions
+				this.dxDist = new NormalDistribution(0, Math.sqrt(t / 200));
+				this.xDist = new NormalDistribution(0, Math.sqrt(t));
+				this.yDist = new HalfNormalDistribution(Math.sqrt(t));
+				this.zDist = new ArcsineDistribution(0, t);
+                this.setDist();
+                super.reset();
+            }
+			setDist() {
+                switch(this.rvSelect.getValue()) {
+                    case "X": 
+                        this.distGraph.setDist(this.xDist, "X");
+                        this.distTable.setDist(this.xDist, "X");
+                        break;
+                    case "Y":
+                        this.distGraph.setDist(this.yDist, "Y");
+                        this.distTable.setDist(this.yDist, "Y");
+                        break;
+                    case "Z":
+                        this.distGraph.setDist(this.zDist, "Z");
+                        this.distTable.setDist(this.zDist, "Z");
+                        break;
+                }
+				this.distGraph.update();
+				this.distTable.update();
+			}
+            simulate() {
+                let x0 = 0, x = 0, dx = 0, y = 0, z = 0, d = "", s = 0, t = this.t, ds = t / 200;
+                d = this.pathGraph.moveTo(d, s, x);
+				for (let i = 1; i <= 200; i++) {
+					x0 = x;
+					s += ds;
+					dx = this.dxDist.simulate();
+					x += dx;
+					if (x > y) y = x;
+					if (x == 0) z = s;
+					else if ((x0 <= 0 && x > 0) || (x0 >= 0 && x < 0)) z = s - ds - x0 * ds / dx;
+					d = this.pathGraph.lineTo(d, s, x);
+				}
+                this.pathGraph.draw(this.path, d, "red", "none");
+                this.pathGraph.setDot(this.finalDot, this.t, x, 4, "red")
+                this.pathGraph.setDot(this.maxDot, 0, y, 4, "red");
+                this.pathGraph.setDot(this.zeroDot, z, 0, 4, "red");
+                this.xDist.setValue(x);
+                this.yDist.setValue(y);
+                this.zDist.setValue(z);
+                this.distGraph.update();
+                this.distTable.update();
+                this.dataTable.setCurrentData([this.runCount, x.toFixed(2), y.toFixed(2), z.toFixed(2)]);
+                super.simulate();
+            }
+ 		}
+		const app = new BrownianMotionApp("app", 1);
+        window.resizeTo(900, 600);
+	</script>
+</head>
+
+<body class="ancillary" onload="app.initialize();">
+
+<header>
+	<h3 class="ancillary">Standard Brownian Motion</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>The experiment consists of running the standard Brownian motion process \( \boldsymbol{X} = \{X_s: s \in [0, \infty) \} \) on the interval \( [0, t] \). On each run, the path is shown in the graph on the top. There are three random variables of interest:</p>
+
+<ul>
+	<li>The final position \( X_t \), which has the normal distribution with mean 0 and standard deviation \( \sqrt{t} \).</li>
+	<li>The maximum position \( Y_t = \max\{X_s: s \in [0, t]\} \) which has the half-normal distribution with parameter \( \sqrt{t} \).</li>
+	<li>The last zero \( Z_t = \max\{s \in [0, t]: X(s) = 0\} \) which has the arcsine disstribution on the interval \( [0, t] \).</li>
+</ul>
+
+<p>On each run, the value of each variable is recorded in the data table, and the points \( (t, X_t) \), \( (0, Y_t) \), and \( (Z_t, 0) \) are shown as red dots in the sample path. Any of the three variables can be selected with the list box, and then the probability density function and moments, and the empirical density function and moments, are shown in the distribution graph and the distribution table on the right. The parameter \( t \) can be varied with the input control.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Standard Brownian Motion</li>
+	</ol>
+</footer>
+
+</body>
+</html>

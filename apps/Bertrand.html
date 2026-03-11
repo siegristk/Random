@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Bertrand's Experiment</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, simulation, Bertrand's paradox, uniform distribution, geometric probability">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Bertrand's Experiment
+		"use strict";
+		class BertrandApp extends SimApp {
+			constructor(name) {
+				super(name);
+			}
+			initialize() {
+				super.initialize();
+				//Data table
+				this.dataTable = new DataTable(this.tables, 400, 100);
+				this.dataTable.setHeader(["Run", "I", "D", "A", "X", "Y"]);
+				//Select model
+				this.modelSelect = new Select(this.toolbar, "Select Model")
+				this.modelSelect.setOptions(["distance", "angle", "point"], ["Uniform Distance", "Uniform Angle", "Uniform Point"], 0);
+				this.modelSelect.setMethod(this.name, "reset()")
+				//Floor
+				this.floor = new Canvas(this.graphs, 200, 200, "Bertrand's circle");
+				this.floor.setBounds(-1, 1, -1, 1);
+				this.floor.setMargins(10, 10, 10, 10);
+				this.floor.setBackground("yellow");
+				this.floor.makeCircle(0, 0, 1, "black", "none");
+				let triangle = this.floor.makePath();
+				let d = "";
+				d = this.floor.moveTo(d, 1, 0);
+				d = this.floor.lineTo(d, -1 / 2, Math.sqrt(3) / 2);
+				d = this.floor.lineTo(d, -1 / 2, -Math.sqrt(3) / 2);
+				d = this.floor.lineTo(d, 1, 0);
+				this.floor.draw(triangle, d, "blue", "none");
+				this.chord = this.floor.makeLine();
+				//Distribution graph and table
+				this.distGraph = new DistGraph(this.graphs, 200, 200);
+				this.distTable = new DistTable(this.tables, 200, 100);
+				this.reset();
+			}
+			reset() {
+				this.floor.clearLine(this.chord);
+				let p = 0;
+				switch(this.modelSelect.getValue()) {
+				case "distance":
+					p = 1 / 2;
+					break;
+				case "angle":
+					p = 1 / 3;
+					break;
+				case "point":
+					p = 1 / 4;
+					break;
+				}
+				this.dist = new BernoulliDistribution(p);
+				this.distGraph.setDist(this.dist, "I");
+				this.distTable.setDist(this.dist, "I");
+				super.reset();
+			}
+			simulate() {
+				let distance = 0, angle = 0, x = 0, y = 0, success = 0;
+				switch(this.modelSelect.getValue()) {
+				case "distance":
+					distance = Math.random();
+					angle = Math.acos(distance);
+					x = 2 * distance * distance - 1;
+					break;
+				case "angle": 
+					angle = 0.5 * Math.PI * Math.random();
+					distance = Math.cos(angle);
+					x = 2 * distance * distance - 1;
+					break;
+				case "point":
+					x = -1 + 2 * Math.random();
+					distance = Math.sqrt((x + 1) / 2);
+					angle = Math.acos(distance);
+					break;
+				}
+				y = 2 * distance * Math.sqrt(1 - distance * distance);
+				if (distance < 0.5) success = 1;
+				this.dist.setValue(success);
+				this.floor.setLine(this.chord, 1, 0, x, y, "red");
+				this.distGraph.update();
+				this.distTable.update();
+				this.dataTable.setCurrentData([this.runCount, success, distance.toFixed(2),  angle.toFixed(2), x.toFixed(2), y.toFixed(2)]);
+				super.simulate();
+			}
+		}
+		const app = new BertrandApp("app");
+		window.resizeTo(800, 600);
+	</script>
+</head>
+
+<body class="ancillary" onload="app.initialize();">
+
+<header>
+	<h3 class="ancillary">Bertrand's Experiment</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>Bertrand's experiment generates a random chord of the circle of radius 1 center at the origin. In the simulation, one point of the chord is fixed at \((0, 1)\) and the other is the random point \((X, Y)\). Random variable \(D\) is the length of the line segment from the center of the circle to the center of the chord, and random variable \(A\) is the angle that this line segment makes with the horizontal. Random variable \(I\) indicates the event that the chord is longer than the length of a side of the inscribed equilateral triangle. One of three models can be selected with the list box:</p>
+
+<ul>
+	<li>the distance \(D\) is uniformly distributed</li>
+	<li>the angle \(A\) is uniformly distributed</li>
+	<li>the coordinate \(X\) is uniformly distributed</li>
+</ul>
+
+<p>When the experiment runs, \(I\), \(D\), \(A\), \(X\), and \(Y\) are recorded in the data table. The distribution of \(I\) is described in the distribution graph and table.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Bertrand's Experiment</li>
+	</ol>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Absolute Brownian Motion</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="probability, statistics, JavaScript, app, Brownian motion, half-normal distribution">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="Distributions.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Absolute Brownian Motion
+		"use strict";
+		class AbsoluteBrownianMotionApp extends SimApp {
+			constructor(name, t) {
+				super(name);
+				this.t = t;
+			}
+            initialize() {
+				super.initialize();
+				//Data table
+				this.dataTable = new DataTable(this.tables, 400, 125);
+                this.dataTable.setHeader(["Run", "U"]);
+				//Parameter
+				this.tParam = new Parameter(this.toolbar, "<var>t</var>", "Time");
+				this.tParam.setProperties(0.5, 5, 0.1, this.t);
+                this.tParam.setMethod(this.name, "reset()");
+                //Path graph
+				this.pathGraph = new Canvas(this.graphs, 400, 300, "Path");
+				this.pathGraph.lm = 30;
+                this.path = this.pathGraph.makePath();
+                this.finalDot = this.pathGraph.makeDot(0, 0, 1, "none");
+                //Distribution 
+				this.distGraph = new DistGraph(this.graphs, 400, 300);
+				this.distTable = new DistTable(this.tables, 400, 125);
+                this.reset();
+            }
+            reset() {
+				//Parameters
+                this.t = this.tParam.getValue();
+				let t = this.t,	dx = Math.sqrt(t / 200);
+				//Distributions
+				this.dxDist = new NormalDistribution(0, dx);
+				this.uDist = new HalfNormalDistribution(Math.sqrt(t));
+				this.distGraph.setDist(this.uDist, "U");
+                this.distTable.setDist(this.uDist, "U");
+				let xMax = this.uDist.max;
+                //Walk graph
+                this.pathGraph.reset(6);
+                this.pathGraph.draw(this.path, "");
+                this.pathGraph.clearDot(this.finalDot);
+                this.pathGraph.setBounds(0, t, 0, xMax);
+                this.pathGraph.makeAxis(0, 0, t / 20, HOR);
+                this.pathGraph.makeText("0", 0, 0, BELOW);
+                this.pathGraph.makeText(t.toFixed(1), t, 0, BELOW);
+                this.pathGraph.makeAxis(0, 0, xMax / 20, VERT);
+                this.pathGraph.makeText("0", 0, 0, LEFT);
+                this.pathGraph.makeText(xMax.toFixed(1), 0, xMax, LEFT);
+                super.reset();
+            }
+            simulate() {
+                let x0 = 0, x = 0, dx = 0, u = 0, d = "", s = 0, t = this.t, ds = t / 200;
+                d = this.pathGraph.moveTo(d, s, x);
+				for (let i = 1; i <= 200; i++) {
+					x0 = x;
+					s += ds;
+					dx = this.dxDist.simulate();
+					x += dx;
+					u = Math.abs(x);
+					d = this.pathGraph.lineTo(d, s, u);
+				}
+                this.pathGraph.draw(this.path, d, "red", "none");
+                this.pathGraph.setDot(this.finalDot, this.t, u, 4, "red")
+                this.uDist.setValue(u);
+                this.distGraph.update();
+                this.distTable.update();
+                this.dataTable.setCurrentData([this.runCount, u.toFixed(2)]);
+                super.simulate();
+            }
+		}
+		const app = new AbsoluteBrownianMotionApp("app", 1);
+        window.resizeTo(900, 600);
+	</script>
+</head>
+
+<body class="ancillary" onload="app.initialize();">
+
+<header>
+	<h3 class="ancillary">Absolute Brownian Motion</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>The experiment consists of running the absolute Brownian motion process \( \boldsymbol{U} = \{\left|X_s\right|: s \in [0, \infty) \} \) on the interval \( [0, t] \), where \( \boldsymbol{X} = \{X_s: s \in [0, \infty)\} \) is standard Brownian motion. This process is also referred to as Brownian motion reflected at 0. On each run, the path is shown in the graph on the top. The random variable of interest is the final position \( U_t = \left|X_t\right| \), which has the half-normal distribution with parameter \( \sqrt{t} \).</p>
+
+<p>On each run, the value of the variable is recorded in the data table, and the point \( (t, \left|X_t\right|) \) is shown as a red dot in the sample path. The probability density function and moments, and the empirical density function and moments, are shown in the distribution graph and in the distribution graph. The parameter \( t \) can be varied with the input control.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Absolute Brownian Motion</li>
+	</ol>
+</footer>
+
+</body>
+</html>

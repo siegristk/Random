@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Coin Sample Experiment</title>
+	<meta name="author" content="Kyle Siegrist">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="Keywords " content="probability, statistics, simulation, random sample, coin-tossing, Bernoulli trials">
+	<link rel="icon" href="../icons/Icon.svg" type="image/svg">
+	<link rel="stylesheet" href="../Screen.css" type="text/css" media="screen">
+	<script src="Apps.js"></script>
+	<script src="../../MathJax/tex-svg.js" id="MathJax-script" async></script>
+	<script>
+		//Coin Sample Experiment
+		"use strict";
+		class CoinSampleApp extends SimApp {
+			constructor(name, n) {
+				super(name);
+				this.n = n;
+				this.p = 0.5;
+				this.N = 100;
+			}
+			initialize() {
+				super.initialize();
+				//Data table
+				this.dataTable = new DataTable(this.tables, 675, 125);
+				this.dataTable.setHeader(["Run", "X"]);
+				//Parameters
+				this.nParam = new Parameter(this.toolbar, "<var>n</var>", "Number of coins");
+				this.nParam.setProperties(1, this.N, 1, this.n);
+				this.nParam.setMethod(this.name, "reset()");
+				this.pParam = new Parameter(this.toolbar, "<var>p</var>", "Probability of heads");
+				this.pParam.setProperties(0, 1, .01, this.p);
+				this.pParam.setMethod(this.name, "reset()");
+				//Coins
+				this.coinBox = new CoinBox(this.graphs);
+				this.reset();
+			}
+			reset() {
+				//Parameters
+				this.n = this.nParam.getValue();
+				this.p = this.pParam.getValue();
+				//Coins
+				this.coinBox.setCoins(this.n);
+				super.reset();
+			}
+			simulate() {
+				this.coinBox.tossCoins(this.p);
+				let data = this.coinBox.getValues();
+				this.dataTable.setCurrentData([this.runCount, "(" + data + ")"]);
+				super.simulate();
+			}
+		}
+		const app = new CoinSampleApp("app", 10);
+		window.resizeTo(750, 600);
+	</script>
+</head>
+
+<body onload="app.initialize();" class="ancillary"></body>
+
+<header>
+	<h3 class="ancillary">Coin Sample Experiment</h3>
+</header>
+
+<div id="app" class="app"></div>
+
+<h4 class="ancillary">Description</h4>
+
+<p>The random experiment consists of tossing \(n\) coins, each with probability of heads \(p\).  Random variable \(X_i\) gives the outcome (1 for heads, 0 for tails) for coin \(i\). The parameters \(n\) and \(p\) can be varied with scrollbars. The sequence of coin tosses \(\boldsymbol{X} = \left(X_1, X_2, \ldots, X_n\right)\) represents a sequence of \(n\) Bernoulli trials and also a random sample of size \(n\) from the Bernoulli distribution. This sequence is recorded in the data table on each run.</p>
+
+<footer>
+	<ol class="map">
+		<li class="parent"><a href="index.html" class="ancillary">Apps</a></li>
+		<li class="child">Coin Sample Experiment</li>
+	</ol>
+</footer>
+
+</body>
+</html>
